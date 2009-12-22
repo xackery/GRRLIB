@@ -144,8 +144,7 @@ typedef  struct GRRLIB_bytemapFont {
         s8    tracking;             /**< Tracking (Add-space after each char) (-128 to 127). */
 
         GRRLIB_bytemapChar  *charDef;   /**< Array of bitmap characters. */
-    }
-GRRLIB_bytemapFont;
+} GRRLIB_bytemapFont;
 
 //------------------------------------------------------------------------------
 /**
@@ -185,6 +184,57 @@ typedef struct tagRGBQUAD {
     u8 rgbRed;              /**< Specifies the intensity of red in the color. */
     u8 rgbReserved;         /**< Not used; must be set to zero. */
 } RGBQUAD;
+
+//------------------------------------------------------------------------------
+/**
+ * Structure that defines a group in a model.
+ */
+typedef struct _GRRLIB_Group {
+  char*                 name;           /**< Name of this group. */
+  u32                   numtriangles;   /**< Number of triangles in this group. */
+  u32*                  triangles;      /**< Array of triangle indices. */
+  u32                   material;       /**< Index to material for group. */
+  struct _GRRLIB_Group* next;           /**< Pointer to next group in model. */
+} GRRLIB_Group;
+/**
+ * Structure that defines a triangle in a model.
+ */
+typedef struct {
+  u32 vindices[3];          /**< Array of triangle vertex indices. */
+  u32 nindices[3];          /**< Array of triangle normal indices. */
+  u32 tindices[3];          /**< Array of triangle texcoord indices.*/
+  u32 findex;               /**< Index of triangle facet normal. */
+} GRRLIB_Triangle;
+/**
+  * Structure that defines a model.
+  */
+typedef struct {
+  char*     pathname;           /**< Path to this model. */
+  char*     mtllibname;         /**< Name of the material library. */
+
+  u32       numvertices;        /**< Number of vertices in model. */
+  f32*      vertices;           /**< Array of vertices. */
+
+  u32       numnormals;         /**< Number of normals in model. */
+  f32*      normals;            /**< Array of normals. */
+
+  u32       numtexcoords;       /**< Number of texcoords in model. */
+  f32*      texcoords;          /**< Array of texture coordinates. */
+
+  u32       numfacetnorms;      /**< Number of facetnorms in model. */
+  f32*      facetnorms;         /**< Array of facetnorms. */
+
+  u32       numtriangles;       /**< Number of triangles in model. */
+  GRRLIB_Triangle* triangles;   /**< Array of triangles. */
+
+  u32       nummaterials;       /**< Number of materials in model. */
+  //GRRLIB_Material* materials;   /**< Array of materials. */
+
+  u32       numgroups;          /**< Number of groups in model. */
+  GRRLIB_Group*    groups;      /**< Linked list of groups. */
+
+  f32       position[3];        /**< Position of the model. */
+} GRRLIB_Model;
 
 //==============================================================================
 // Allow general access to screen and frame information

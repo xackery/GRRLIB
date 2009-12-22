@@ -78,29 +78,29 @@ void GRRLIB_Camera3dSettings(f32 posx, f32 posy, f32 posz,
  * @param fov Field of view for the cam.
  * @param texturemode False, GX won't need TexCoord, True, GX will need TexCoord.
  */
-void GRRLIB_3dMode(f32 minDist, f32 maxDist, f32 fov, bool texturemode) {
+void GRRLIB_3dMode(f32 minDist, f32 maxDist, f32 fov, bool colormode, bool texturemode, bool normalmode) {
     Mtx m;
 
-    guLookAt(_GRR_view, &_GRR_cam, &_GRR_up, &_GRR_look);   
+    guLookAt(_GRR_view, &_GRR_cam, &_GRR_up, &_GRR_look);
     guPerspective(m, fov, (f32)rmode->fbWidth/rmode->efbHeight, minDist, maxDist);
-    GX_LoadProjectionMtx(m, GX_PERSPECTIVE);     
+    GX_LoadProjectionMtx(m, GX_PERSPECTIVE);
     GX_SetZMode (GX_TRUE, GX_LEQUAL, GX_TRUE);
 
     GX_SetCullMode(GX_CULL_NONE);
 
     GX_ClearVtxDesc();
     GX_SetVtxDesc(GX_VA_POS, GX_DIRECT);
-    GX_SetVtxDesc(GX_VA_CLR0, GX_DIRECT);
-
-    if(texturemode==FALSE) GX_SetVtxDesc(GX_VA_TEX0, GX_NONE);
-    else                   GX_SetVtxDesc(GX_VA_TEX0, GX_DIRECT);
+    if(colormode)   GX_SetVtxDesc(GX_VA_CLR0, GX_DIRECT);
+    if(texturemode) GX_SetVtxDesc(GX_VA_TEX0, GX_DIRECT);
+    if(normalmode)  GX_SetVtxDesc(GX_VA_NRM, GX_DIRECT);
 
     GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
-    GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_CLR0, GX_CLR_RGBA, GX_RGBA8, 0);
-    GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0, GX_TEX_ST, GX_F32, 0);
+    if(colormode)   GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_CLR0, GX_CLR_RGBA, GX_RGBA8, 0);
+    if(texturemode) GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0, GX_TEX_ST, GX_F32, 0);
+    if(normalmode ) GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_NRM, GX_NRM_XYZ, GX_F32, 0);
 
-    if(texturemode==FALSE) GX_SetTevOp(GX_TEVSTAGE0, GX_PASSCLR);
-    else                   GX_SetTevOp(GX_TEVSTAGE0, GX_REPLACE);
+    if(!texturemode) GX_SetTevOp(GX_TEVSTAGE0, GX_PASSCLR);
+    else             GX_SetTevOp(GX_TEVSTAGE0, GX_REPLACE);
 }
 
 /**
