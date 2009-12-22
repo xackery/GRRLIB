@@ -34,12 +34,13 @@ THE SOFTWARE.
 /**
  * Elements of a vertex.
  */
-enum { X, Y, Z, W };
+enum { X, Y, Z };
 
 /**
  * Find a group in the model.
  * @param model Structure that defines the model in wich the group will be searched.
  * @param name Yhe name of the group to find.
+ * @return The group found in the model.
  */
 static GRRLIB_Group* GRRLIB_FindGroup(GRRLIB_Model* model, char* name) {
     GRRLIB_Group* group = model->groups;
@@ -55,6 +56,7 @@ static GRRLIB_Group* GRRLIB_FindGroup(GRRLIB_Model* model, char* name) {
  * Add a group to the model.
  * @param model Structure that defines the model to wich the group will be added.
  * @param name Yhe name of the group to add.
+ * @return The group added to the model.
  */
 static GRRLIB_Group* GRRLIB_AddGroup(GRRLIB_Model* model, char* name) {
     GRRLIB_Group* group = GRRLIB_FindGroup(model, name);
@@ -69,6 +71,44 @@ static GRRLIB_Group* GRRLIB_AddGroup(GRRLIB_Model* model, char* name) {
         model->numgroups++;
     }
     return group;
+}
+
+/**
+ * Read a wavefront material library file.
+ * @param model Properly initialized GRRLIB_Model structure.
+ */
+static void GRRLIB_ReadMTL(GRRLIB_Model* model)
+{
+    u32 nummaterials, i;
+
+    // count the number of materials in the file
+    nummaterials = 1;
+
+    // allocate memory for the materials
+    model->materials = (GRRLIB_Material*)malloc(sizeof(GRRLIB_Material) * nummaterials);
+    model->nummaterials = nummaterials;
+
+    // set the default material
+    for (i = 0; i < nummaterials; i++) {
+        model->materials[i].name = NULL;
+        model->materials[i].shininess = 0;
+        model->materials[i].diffuse[0] = 0.8;
+        model->materials[i].diffuse[1] = 0.8;
+        model->materials[i].diffuse[2] = 0.8;
+        model->materials[i].diffuse[3] = 1.0;
+        model->materials[i].ambient[0] = 0.2;
+        model->materials[i].ambient[1] = 0.2;
+        model->materials[i].ambient[2] = 0.2;
+        model->materials[i].ambient[3] = 1.0;
+        model->materials[i].specular[0] = 0.0;
+        model->materials[i].specular[1] = 0.0;
+        model->materials[i].specular[2] = 0.0;
+        model->materials[i].specular[3] = 1.0;
+    }
+    model->materials[0].name = strdup("default");
+
+    // now, read in the data
+    nummaterials = 0;
 }
 
 static void GRRLIB_SecondPass(GRRLIB_Model* model, FILE* file) {
@@ -385,12 +425,12 @@ GRRLIB_Model* GRRLIB_ReadOBJ(char* filename) {
     model->numtriangles  = 0;
     model->triangles     = NULL;
     model->nummaterials  = 0;
-    //model->materials     = NULL;
+    model->materials     = NULL;
     model->numgroups     = 0;
     model->groups        = NULL;
-    model->position[0]   = 0.0;
-    model->position[1]   = 0.0;
-    model->position[2]   = 0.0;
+    model->position.x    = 0.0;
+    model->position.y    = 0.0;
+    model->position.z    = 0.0;
 
     // Get a count of the number of stuff
     GRRLIB_FirstPass(model, file);
@@ -429,13 +469,11 @@ void GRRLIB_DeleteObj(GRRLIB_Model* model) {
     if (model->texcoords)  free(model->texcoords);
     if (model->facetnorms) free(model->facetnorms);
     if (model->triangles)  free(model->triangles);
-    /*
     if (model->materials) {
         for (i = 0; i < model->nummaterials; i++)
             free(model->materials[i].name);
     }
     free(model->materials);
-    */
     while(model->groups) {
         group = model->groups;
         model->groups = model->groups->next;
@@ -463,46 +501,44 @@ void Draw3dObj(GRRLIB_Model* model) {
                             model->vertices[3 * T(group->triangles[i]).vindices[0] + Y],
                             model->vertices[3 * T(group->triangles[i]).vindices[0] + Z]);
             GX_Color1u32(0xFFFFFFFF);
-            if(model->numtexcoords) {
-                GX_TexCoord2f32(model->texcoords[2*T(group->triangles[i]).tindices[0] + X],
-                                model->texcoords[2*T(group->triangles[i]).tindices[0] + Y]);
-            }
             if(model->numnormals) {
                 GX_Normal3f32(model->normals[3 * T(group->triangles[i]).nindices[0] + X],
                               model->normals[3 * T(group->triangles[i]).nindices[0] + Y],
                               model->normals[3 * T(group->triangles[i]).nindices[0] + Z]);
             }
-
+            if(model->numtexcoords) {
+                GX_TexCoord2f32(model->texcoords[2*T(group->triangles[i]).tindices[0] + X],
+                                model->texcoords[2*T(group->triangles[i]).tindices[0] + Y]);
+            }
 
 
             GX_Position3f32(model->vertices[3 * T(group->triangles[i]).vindices[1] + X],
                             model->vertices[3 * T(group->triangles[i]).vindices[1] + Y],
                             model->vertices[3 * T(group->triangles[i]).vindices[1] + Z]);
             GX_Color1u32(0xFFFFFFFF);
-            if(model->numtexcoords) {
-                GX_TexCoord2f32(model->texcoords[2*T(group->triangles[i]).tindices[1] + X],
-                                model->texcoords[2*T(group->triangles[i]).tindices[1] + Y]);
-            }
             if(model->numnormals) {
                 GX_Normal3f32(model->normals[3 * T(group->triangles[i]).nindices[1] + X],
                               model->normals[3 * T(group->triangles[i]).nindices[1] + Y],
                               model->normals[3 * T(group->triangles[i]).nindices[1] + Z]);
             }
-
+            if(model->numtexcoords) {
+                GX_TexCoord2f32(model->texcoords[2*T(group->triangles[i]).tindices[1] + X],
+                                model->texcoords[2*T(group->triangles[i]).tindices[1] + Y]);
+            }
 
 
             GX_Position3f32(model->vertices[3 * T(group->triangles[i]).vindices[2] + X],
                             model->vertices[3 * T(group->triangles[i]).vindices[2] + Y],
                             model->vertices[3 * T(group->triangles[i]).vindices[2] + Z]);
             GX_Color1u32(0xFFFFFFFF);
-            if(model->numtexcoords) {
-                GX_TexCoord2f32(model->texcoords[2*T(group->triangles[i]).tindices[2] + X],
-                                model->texcoords[2*T(group->triangles[i]).tindices[2] + Y]);
-            }
             if(model->numnormals) {
                 GX_Normal3f32(model->normals[3 * T(group->triangles[i]).nindices[2] + X],
                               model->normals[3 * T(group->triangles[i]).nindices[2] + Y],
                               model->normals[3 * T(group->triangles[i]).nindices[2] + Z]);
+            }
+            if(model->numtexcoords) {
+                GX_TexCoord2f32(model->texcoords[2*T(group->triangles[i]).tindices[2] + X],
+                                model->texcoords[2*T(group->triangles[i]).tindices[2] + Y]);
             }
         }
         GX_End();
@@ -680,9 +716,9 @@ GRRLIB_Model* GRRLIB_ReadOBJMem(const char *buffer, u32 size) {
     //model->materials     = NULL;
     model->numgroups     = 0;
     model->groups        = NULL;
-    model->position[0]   = 0.0;
-    model->position[1]   = 0.0;
-    model->position[2]   = 0.0;
+    model->position.x    = 0.0;
+    model->position.y    = 0.0;
+    model->position.z    = 0.0;
 
     // Get a count of the number of stuff
     GRRLIB_FirstPassMem(model, buffer, size);
