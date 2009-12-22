@@ -26,14 +26,13 @@ THE SOFTWARE.
 #include <string.h>
 #include <stdlib.h>
 
-
 /**
  * Shortcut to access triangles values.
  */
 #define T(x) model->triangles[(x)]
 
 /**
- * Elements of a vertex
+ * Elements of a vertex.
  */
 enum { X, Y, Z, W };
 
@@ -42,18 +41,14 @@ enum { X, Y, Z, W };
  * @param model Structure that defines the model in wich the group will be searched.
  * @param name Yhe name of the group to find.
  */
-static GRRLIB_Group* GRRLIB_FindGroup(GRRLIB_Model* model, char* name)
-{
-  GRRLIB_Group* group;
-
-  group = model->groups;
-  while(group) {
-    if (!strcmp(name, group->name))
-      break;
-    group = group->next;
-  }
-
-  return group;
+static GRRLIB_Group* GRRLIB_FindGroup(GRRLIB_Model* model, char* name) {
+    GRRLIB_Group* group = model->groups;
+    while(group) {
+        if (!strcmp(name, group->name))
+            break;
+        group = group->next;
+    }
+    return group;
 }
 
 /**
@@ -61,11 +56,8 @@ static GRRLIB_Group* GRRLIB_FindGroup(GRRLIB_Model* model, char* name)
  * @param model Structure that defines the model to wich the group will be added.
  * @param name Yhe name of the group to add.
  */
-static GRRLIB_Group* GRRLIB_AddGroup(GRRLIB_Model* model, char* name)
-{
-    GRRLIB_Group* group;
-
-    group = GRRLIB_FindGroup(model, name);
+static GRRLIB_Group* GRRLIB_AddGroup(GRRLIB_Model* model, char* name) {
+    GRRLIB_Group* group = GRRLIB_FindGroup(model, name);
     if (!group) {
         group = (GRRLIB_Group*)malloc(sizeof(GRRLIB_Group));
         group->name = strdup(name);
@@ -76,21 +68,19 @@ static GRRLIB_Group* GRRLIB_AddGroup(GRRLIB_Model* model, char* name)
         model->groups = group;
         model->numgroups++;
     }
-
     return group;
 }
 
-static void GRRLIB_SecondPass(GRRLIB_Model* model, FILE* file)
-{
-    u32    numvertices;		/* number of vertices in model */
-    u32    numnormals;			/* number of normals in model */
-    u32    numtexcoords;		/* number of texcoords in model */
-    u32    numtriangles;		/* number of triangles in model */
-    f32*  vertices;			/* array of vertices  */
-    f32*  normals;			/* array of normals */
-    f32*  texcoords;			/* array of texture coordinates */
-    GRRLIB_Group* group;			/* current group pointer */
-    u32    material;			/* current material */
+static void GRRLIB_SecondPass(GRRLIB_Model* model, FILE* file) {
+    u32    numvertices;     /* number of vertices in model */
+    u32    numnormals;          /* number of normals in model */
+    u32    numtexcoords;        /* number of texcoords in model */
+    u32    numtriangles;        /* number of triangles in model */
+    f32*  vertices;         /* array of vertices  */
+    f32*  normals;          /* array of normals */
+    f32*  texcoords;            /* array of texture coordinates */
+    GRRLIB_Group* group;            /* current group pointer */
+    u32    material;            /* current material */
     u32    v, n, t;
     char   buf[128];
 
@@ -107,27 +97,27 @@ static void GRRLIB_SecondPass(GRRLIB_Model* model, FILE* file)
     material = 0;
     while(fscanf(file, "%s", buf) != EOF) {
         switch(buf[0]) {
-            case '#':				/* comment */
+            case '#':               /* comment */
                 /* eat up rest of line */
                 fgets(buf, sizeof(buf), file);
             break;
-            case 'v':				/* v, vn, vt */
+            case 'v':               /* v, vn, vt */
                 switch(buf[1]) {
-                    case '\0':			/* vertex */
+                    case '\0':          /* vertex */
                         fscanf(file, "%f %f %f",
                            &vertices[3 * numvertices + X],
                            &vertices[3 * numvertices + Y],
                            &vertices[3 * numvertices + Z]);
                         numvertices++;
                     break;
-                    case 'n':				/* normal */
+                    case 'n':               /* normal */
                         fscanf(file, "%f %f %f",
                            &normals[3 * numnormals + X],
                            &normals[3 * numnormals + Y],
                            &normals[3 * numnormals + Z]);
                         numnormals++;
                     break;
-                    case 't':				/* texcoord */
+                    case 't':               /* texcoord */
                         fscanf(file, "%f %f",
                            &texcoords[2 * numtexcoords + X],
                            &texcoords[2 * numtexcoords + Y]);
@@ -140,14 +130,14 @@ static void GRRLIB_SecondPass(GRRLIB_Model* model, FILE* file)
                 sscanf(buf, "%s %s", buf, buf);
                 //group->material = material = _glmFindMaterial(model, buf);
             break;
-            case 'g':				/* group */
+            case 'g':               /* group */
                 /* eat up rest of line */
                 fgets(buf, sizeof(buf), file);
                 sscanf(buf, "%s", buf);
                 group = GRRLIB_AddGroup(model, buf);
                 group->material = material;
             break;
-            case 'f':				/* face */
+            case 'f':               /* face */
                 v = n = t = 0;
                 fscanf(file, "%s", buf);
                 // can be one of %d, %d//%d, %d/%d, %d/%d/%d %d//%d
@@ -174,7 +164,7 @@ static void GRRLIB_SecondPass(GRRLIB_Model* model, FILE* file)
                         group->triangles[group->numtriangles++] = numtriangles;
                         numtriangles++;
                     }
-            	} else if (sscanf(buf, "%d/%d/%d", &v, &t, &n) == 3) {
+                } else if (sscanf(buf, "%d/%d/%d", &v, &t, &n) == 3) {
                     // v/t/n
                     T(numtriangles).vindices[0] = v;
                     T(numtriangles).tindices[0] = t;
@@ -223,7 +213,7 @@ static void GRRLIB_SecondPass(GRRLIB_Model* model, FILE* file)
                         T(numtriangles).tindices[2] = t;
                         group->triangles[group->numtriangles++] = numtriangles;
                         numtriangles++;
-                	}
+                    }
                 } else {
                     // v
                     sscanf(buf, "%d", &v);
@@ -247,17 +237,16 @@ static void GRRLIB_SecondPass(GRRLIB_Model* model, FILE* file)
                 /* eat up rest of line */
                 fgets(buf, sizeof(buf), file);
             break;
-    	}
+        }
     }
 }
 
-static void GRRLIB_FirstPass(GRRLIB_Model* model, FILE* file)
-{
-    u32    numvertices;		/* number of vertices in model */
-    u32    numnormals;		/* number of normals in model */
-    u32    numtexcoords;		/* number of texcoords in model */
-    u32    numtriangles;		/* number of triangles in model */
-    GRRLIB_Group* group;			/* current group */
+static void GRRLIB_FirstPass(GRRLIB_Model* model, FILE* file) {
+    u32    numvertices;     /* number of vertices in model */
+    u32    numnormals;      /* number of normals in model */
+    u32    numtexcoords;        /* number of texcoords in model */
+    u32    numtriangles;        /* number of triangles in model */
+    GRRLIB_Group* group;            /* current group */
     unsigned  v, n, t;
     char      buf[128];
 
@@ -268,20 +257,20 @@ static void GRRLIB_FirstPass(GRRLIB_Model* model, FILE* file)
 
     while(fscanf(file, "%s", buf) != EOF) {
         switch(buf[0]) {
-            case '#':				/* comment */
+            case '#':               /* comment */
                 fgets(buf, sizeof(buf), file);
                 break;
-            case 'v':				/* v, vn, vt */
+            case 'v':               /* v, vn, vt */
                 switch(buf[1]) {
-                    case '\0':			/* vertex */
+                    case '\0':          /* vertex */
                         fgets(buf, sizeof(buf), file);
                         numvertices++;
                         break;
-                    case 'n':				/* normal */
+                    case 'n':               /* normal */
                         fgets(buf, sizeof(buf), file);
                         numnormals++;
                         break;
-                    case 't':				/* texcoord */
+                    case 't':               /* texcoord */
                         fgets(buf, sizeof(buf), file);
                         numtexcoords++;
                         break;
@@ -298,12 +287,12 @@ static void GRRLIB_FirstPass(GRRLIB_Model* model, FILE* file)
             case 'u':
                 fgets(buf, sizeof(buf), file);
                 break;
-            case 'g':				/* group */
+            case 'g':               /* group */
                 fgets(buf, sizeof(buf), file);
                 sscanf(buf, "%s", buf);
                 group = GRRLIB_AddGroup(model, buf);
                 break;
-            case 'f':				/* face */
+            case 'f':               /* face */
                 v = n = t = 0;
                 fscanf(file, "%s", buf);
                 /* can be one of %d, %d//%d, %d/%d, %d/%d/%d %d//%d */
@@ -373,8 +362,7 @@ static void GRRLIB_FirstPass(GRRLIB_Model* model, FILE* file)
     }
 }
 
-GRRLIB_Model* GRRLIB_ReadOBJ(char* filename)
-{
+GRRLIB_Model* GRRLIB_ReadOBJ(char* filename) {
     GRRLIB_Model* model;
     FILE*     file;
 
@@ -430,8 +418,7 @@ GRRLIB_Model* GRRLIB_ReadOBJ(char* filename)
  * Deletes a GRRLIB_Model structure.
  * @param model Initialized GRRLIB_Model structure.
  */
-void GRRLIB_DeleteObj(GRRLIB_Model* model)
-{
+void GRRLIB_DeleteObj(GRRLIB_Model* model) {
     GRRLIB_Group* group;
     u32 i;
 
@@ -464,8 +451,7 @@ void GRRLIB_DeleteObj(GRRLIB_Model* model)
  * Draw a 3D object.
  * @param model Structure that defines the model to draw.
  */
-void Draw3dObj(GRRLIB_Model* model)
-{
+void Draw3dObj(GRRLIB_Model* model) {
     GRRLIB_Group* group;
     int i;
 
@@ -542,13 +528,12 @@ void Draw3dObj(GRRLIB_Model* model)
 
 
 
-static void GRRLIB_FirstPassMem(GRRLIB_Model* model, char *buffer, u32 size)
-{
-    u32    numvertices;		/* number of vertices in model */
-    u32    numnormals;		/* number of normals in model */
-    u32    numtexcoords;		/* number of texcoords in model */
-    u32    numtriangles;		/* number of triangles in model */
-    GRRLIB_Group* group;			/* current group */
+static void GRRLIB_FirstPassMem(GRRLIB_Model* model, char *buffer, u32 size) {
+    u32    numvertices;     /* number of vertices in model */
+    u32    numnormals;      /* number of normals in model */
+    u32    numtexcoords;        /* number of texcoords in model */
+    u32    numtriangles;        /* number of triangles in model */
+    GRRLIB_Group* group;            /* current group */
     unsigned  v, n, t;
     char      buf[128];
     int ss;
@@ -565,18 +550,18 @@ static void GRRLIB_FirstPassMem(GRRLIB_Model* model, char *buffer, u32 size)
     while((ss = sscanf(buffer, "%s", buf)) != EOF) {
         buffer += (ss + 1);
         switch(buf[0]) {
-            case '#':				/* comment */
+            case '#':               /* comment */
                 buffer = strchr(buffer, '\n') + 1;
                 break;
-            case 'v':				/* v, vn, vt */
+            case 'v':               /* v, vn, vt */
                 switch(buf[1]) {
-                    case '\0':			/* vertex */
+                    case '\0':          /* vertex */
                         numvertices++;
                         break;
-                    case 'n':				/* normal */
+                    case 'n':               /* normal */
                         numnormals++;
                         break;
-                    case 't':				/* texcoord */
+                    case 't':               /* texcoord */
                         numtexcoords++;
                         break;
                     default:
@@ -593,12 +578,12 @@ static void GRRLIB_FirstPassMem(GRRLIB_Model* model, char *buffer, u32 size)
             case 'u':
                 buffer = strchr(buffer, '\n') + 1;
                 break;
-            case 'g':				/* group */
+            case 'g':               /* group */
                 buffer = strchr(buffer, '\n') + 1;
                 sscanf(buf, "%s", buf);
                 group = GRRLIB_AddGroup(model, buf);
                 break;
-            case 'f':				/* face */
+            case 'f':               /* face */
                 v = n = t = 0;
                 sscanf(buffer, "%s", buf);
                 /* can be one of %d, %d//%d, %d/%d, %d/%d/%d %d//%d */
@@ -675,8 +660,7 @@ static void GRRLIB_FirstPassMem(GRRLIB_Model* model, char *buffer, u32 size)
     }
 }
 
-GRRLIB_Model* GRRLIB_ReadOBJMem(const char *buffer, u32 size)
-{
+GRRLIB_Model* GRRLIB_ReadOBJMem(const char *buffer, u32 size) {
     GRRLIB_Model* model;
 
     model = (GRRLIB_Model*)malloc(sizeof(GRRLIB_Model));
