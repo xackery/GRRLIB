@@ -72,11 +72,13 @@ void GRRLIB_Camera3dSettings(f32 posx, f32 posy, f32 posz,
 }
 
 /**
- * Set up the position matrix (contributed my chris_c aka DaShAmAn).
+ * Set up the position matrix (contributed by chris_c aka DaShAmAn).
  * @param minDist Minimal distance for the cam.
  * @param maxDist Maximal distance for the cam.
  * @param fov Field of view for the cam.
- * @param texturemode False, GX won't need TexCoord, True, GX will need TexCoord.
+ * @param colormode False, GX won't need color, True, GX will need color.
+ * @param texturemode False, GX won't need texture coordinate, True, GX will need texture coordinate.
+ * @param normalmode False, GX won't need normal, True, GX will need normal.
  */
 void GRRLIB_3dMode(f32 minDist, f32 maxDist, f32 fov, bool colormode, bool texturemode, bool normalmode) {
     Mtx m;
@@ -104,7 +106,7 @@ void GRRLIB_3dMode(f32 minDist, f32 maxDist, f32 fov, bool colormode, bool textu
 }
 
 /**
- * Go back to 2D Mode (contributed my chris_c aka DaShAmAn).
+ * Go back to 2D Mode (contributed by chris_c aka DaShAmAn).
  */
 void GRRLIB_2dMode() {
     Mtx view, m;
@@ -132,7 +134,7 @@ void GRRLIB_2dMode() {
 }
 
 /**
- * Set the view matrix to draw object (contributed my chris_c aka DaShAmAn).
+ * Set the view matrix to draw object (contributed by chris_c aka DaShAmAn).
  * @param posx x posision of the object.
  * @param posy y posision of the object.
  * @param posz z posision of the object.
@@ -161,7 +163,7 @@ void GRRLIB_ObjectView(f32 posx, f32 posy, f32 posz, f32 angx, f32 angy, f32 ang
 }
 
 /**
- * Set the texture to an object (contributed my chris_c aka DaShAmAn).
+ * Set the texture to an object (contributed by chris_c aka DaShAmAn).
  * @param tex poiter to an image texture (GRRLIB_texImg format).
  * @param rep Texture Repeat Mode, True will repeat it, False won't.
 */
