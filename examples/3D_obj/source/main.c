@@ -37,15 +37,6 @@ int main() {
     model = GRRLIB_ReadOBJ("sd:/data/head_chord.obj");
 
     while(1) {
-        WPAD_ScanPads();
-        if(WPAD_ButtonsDown(0) & WPAD_BUTTON_HOME)  exit(0);
-        if(WPAD_ButtonsHeld(0) & WPAD_BUTTON_RIGHT) modelRotY++;
-        if(WPAD_ButtonsHeld(0) & WPAD_BUTTON_LEFT)  modelRotY--;
-        if(WPAD_ButtonsHeld(0) & WPAD_BUTTON_DOWN)  modelRotX++;
-        if(WPAD_ButtonsHeld(0) & WPAD_BUTTON_UP)    modelRotX--;
-        if(WPAD_ButtonsHeld(0) & WPAD_BUTTON_PLUS)  camZ -= 0.3f;
-        if(WPAD_ButtonsHeld(0) & WPAD_BUTTON_MINUS) camZ += 0.3f;
-
         GRRLIB_Camera3dSettings(0.0f,0.0f,camZ, 0,1,0, 0,0,0);
 
         GRRLIB_3dMode(0.1, 1000, 45, 1, model->numtexcoords, model->numnormals);
@@ -67,6 +58,20 @@ int main() {
             tex_font, 0xFFFFFF33, 1, strCredit);
 
         GRRLIB_Render();
+
+        WPAD_ScanPads();
+        if(WPAD_ButtonsDown(0) & WPAD_BUTTON_HOME)  exit(0);
+        if(WPAD_ButtonsHeld(0) & WPAD_BUTTON_RIGHT) modelRotY++;
+        if(WPAD_ButtonsHeld(0) & WPAD_BUTTON_LEFT)  modelRotY--;
+        if(WPAD_ButtonsHeld(0) & WPAD_BUTTON_DOWN)  modelRotX++;
+        if(WPAD_ButtonsHeld(0) & WPAD_BUTTON_UP)    modelRotX--;
+        if(WPAD_ButtonsHeld(0) & WPAD_BUTTON_PLUS)  camZ -= 0.3f;
+        if(WPAD_ButtonsHeld(0) & WPAD_BUTTON_MINUS) camZ += 0.3f;
+        if(WPAD_ButtonsHeld(0) & WPAD_BUTTON_1 && WPAD_ButtonsHeld(0) & WPAD_BUTTON_2) {
+            WPAD_Rumble(0, true);  // Rumble on
+            GRRLIB_ScrShot("sd:/grrlib_3d.png");
+            WPAD_Rumble(0, false); // Rumble off
+        }
     }
     GRRLIB_Exit(); // Be a good boy, clear the memory allocated by GRRLIB
 

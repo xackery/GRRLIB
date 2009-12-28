@@ -37,6 +37,15 @@ THE SOFTWARE.
 enum { X, Y, Z };
 
 /**
+ * General purpose node.
+ */
+typedef struct _GRRLIB_Node {
+    u32    index;
+    bool   averaged;
+    struct _GRRLIB_Node* next;
+} GRRLIB_Node;
+
+/**
  * Find a group in the model.
  * @param model Structure that defines the model in wich the group will be searched.
  * @param name Yhe name of the group to find.
@@ -109,6 +118,49 @@ static void GRRLIB_ReadMTL(GRRLIB_Model* model)
 
     // now, read in the data
     nummaterials = 0;
+}
+
+/**
+ * Compute the dot product of two vectors.
+ * @param u An array of 3 f32 (f32 u[3]).
+ * @param v An array of 3 f32 (f32 v[3]).
+ */
+static f32 GRRLIB_Dot(f32* u, f32* v) {
+    if(u == NULL || v == NULL)
+        return 0.0;
+    return u[X] * v[X] + u[Y] * v[Y] + u[Z] * v[Z];
+}
+
+/**
+ * Compute the cross product of two vectors.
+ * @param u An array of 3 f32 (f32 u[3]).
+ * @param v An array of 3 f32 (f32 v[3]).
+ * @param n An array of 3 f32 (f32 n[3]) to return the cross product in.
+ */
+static void GRRLIB_Cross(f32* u, f32* v, f32* n) {
+    if(u == NULL || v == NULL || n == NULL)
+        return;
+
+    // compute the cross product (u x v for right-handed [ccw])
+    n[X] = u[Y] * v[Z] - u[Z] * v[Y];
+    n[Y] = u[Z] * v[X] - u[X] * v[Z];
+    n[Z] = u[X] * v[Y] - u[Y] * v[X];
+}
+
+/**
+ * Normalize a vector.
+ * @param n An array of 3 f32 (f32 n[3]) to be normalized.
+ */
+static void GRRLIB_Normalize(f32* n) {
+    f32 l;
+
+    if(n == NULL)
+        return;
+
+    l = (f32)sqrt(n[X] * n[X] + n[Y] * n[Y] + n[Z] * n[Z]);
+    n[0] /= l;
+    n[1] /= l;
+    n[2] /= l;
 }
 
 static void GRRLIB_SecondPass(GRRLIB_Model* model, FILE* file) {
@@ -493,6 +545,9 @@ void Draw3dObj(GRRLIB_Model* model) {
     GRRLIB_Group* group;
     int i;
 
+    if(model == NULL)
+        return;
+
     group = model->groups;
     while (group) {
         GX_Begin(GX_TRIANGLES, GX_VTXFMT0, group->numtriangles*3);
@@ -546,9 +601,215 @@ void Draw3dObj(GRRLIB_Model* model) {
     }
 }
 
+/**
+ * Generates smooth vertex normals for a model.
+ * First builds a list of all the triangles each vertex is in.  Then
+ * loops through each vertex in the the list averaging all the facet
+ * normals of the triangles each vertex is in.  Finally, sets the
+ * normal index in the triangle for the vertex to the generated smooth
+ * normal.  If the dot product of a facet normal and the facet normal
+ * associated with the first triangle in the list of triangles the
+ * current vertex is in is greater than the cosine of the angle
+ * parameter to the function, that facet normal is not added into the
+ * average normal calculation and the corresponding vertex is given
+ * the facet normal.  This tends to preserve hard edges.  The angle to
+ * use depends on the model, but 90 degrees is usually a good start.
+ *
+ * @param model Initialized GRRLIB_Model structure.
+ * @param angle Maximum angle (in degrees) to smooth across.
+ */
+void GRRLIB_VertexNormals(GRRLIB_Model* model, f32 angle) {
+    GRRLIB_Node*  node;
+    GRRLIB_Node*  tail;
+    GRRLIB_Node** members;
+    f32*  normals;
+    u32   numnormals;
+    f32   average[3];
+    f32   dot, cos_angle;
+    u32   i, avg;
 
+    if(model == NULL || model->facetnorms == NULL)
+        return;
 
+    // calculate the cosine of the angle (in degrees)
+    cos_angle = cos(angle * M_PI / 180.0);
 
+    // nuke any previous normals
+    if (model->normals)
+        free(model->normals);
+
+    // allocate space for new normals
+    model->numnormals = model->numtriangles * 3; /* 3 normals per triangle */
+    model->normals = (f32*)malloc(sizeof(f32)* 3* (model->numnormals+1));
+
+    // allocate a structure that will hold a linked list of triangle indices for each vertex
+    members = (GRRLIB_Node**)malloc(sizeof(GRRLIB_Node*) * (model->numvertices + 1));
+    for (i = 1; i <= model->numvertices; i++) {
+        members[i] = NULL;
+    }
+
+    // for every triangle, create a node for each vertex in it
+    for (i = 0; i < model->numtriangles; i++) {
+        node = (GRRLIB_Node*)malloc(sizeof(GRRLIB_Node));
+        node->index = i;
+        node->next  = members[T(i).vindices[0]];
+        members[T(i).vindices[0]] = node;
+
+        node = (GRRLIB_Node*)malloc(sizeof(GRRLIB_Node));
+        node->index = i;
+        node->next  = members[T(i).vindices[1]];
+        members[T(i).vindices[1]] = node;
+
+        node = (GRRLIB_Node*)malloc(sizeof(GRRLIB_Node));
+        node->index = i;
+        node->next  = members[T(i).vindices[2]];
+        members[T(i).vindices[2]] = node;
+    }
+
+    // calculate the average normal for each vertex
+    numnormals = 1;
+    for (i = 1; i <= model->numvertices; i++) {
+        // calculate an average normal for this vertex by averaging the
+        // facet normal of every triangle this vertex is in
+        node = members[i];
+
+        average[0] = 0.0; average[1] = 0.0; average[2] = 0.0;
+        avg = 0;
+        while (node) {
+            /* only average if the dot product of the angle between the two
+            facet normals is greater than the cosine of the threshold
+            angle -- or, said another way, the angle between the two
+            facet normals is less than (or equal to) the threshold angle */
+            dot = GRRLIB_Dot(&model->facetnorms[3 * T(node->index).findex],
+                &model->facetnorms[3 * T(members[i]->index).findex]);
+            if (dot > cos_angle) {
+                node->averaged = true;
+                average[0] += model->facetnorms[3 * T(node->index).findex + 0];
+                average[1] += model->facetnorms[3 * T(node->index).findex + 1];
+                average[2] += model->facetnorms[3 * T(node->index).findex + 2];
+                avg = 1;            // we averaged at least one normal!
+            }
+            else {
+                node->averaged = false;
+            }
+            node = node->next;
+        }
+
+        if (avg) {
+            // normalize the averaged normal
+            GRRLIB_Normalize(average);
+
+            // add the normal to the vertex normals list
+            model->normals[3 * numnormals + 0] = average[0];
+            model->normals[3 * numnormals + 1] = average[1];
+            model->normals[3 * numnormals + 2] = average[2];
+            avg = numnormals;
+            numnormals++;
+        }
+
+        // set the normal of this vertex in each triangle it is in
+        node = members[i];
+        while (node) {
+            if (node->averaged) {
+                // if this node was averaged, use the average normal
+                if (T(node->index).vindices[0] == i)
+                    T(node->index).nindices[0] = avg;
+                else if (T(node->index).vindices[1] == i)
+                    T(node->index).nindices[1] = avg;
+                else if (T(node->index).vindices[2] == i)
+                    T(node->index).nindices[2] = avg;
+            }
+            else {
+                // if this node wasn't averaged, use the facet normal
+                model->normals[3 * numnormals + 0] =
+                model->facetnorms[3 * T(node->index).findex + 0];
+                model->normals[3 * numnormals + 1] =
+                model->facetnorms[3 * T(node->index).findex + 1];
+                model->normals[3 * numnormals + 2] =
+                model->facetnorms[3 * T(node->index).findex + 2];
+                if (T(node->index).vindices[0] == i)
+                    T(node->index).nindices[0] = numnormals;
+                else if (T(node->index).vindices[1] == i)
+                    T(node->index).nindices[1] = numnormals;
+                else if (T(node->index).vindices[2] == i)
+                    T(node->index).nindices[2] = numnormals;
+                numnormals++;
+            }
+            node = node->next;
+        }
+    }
+
+    model->numnormals = numnormals - 1;
+
+    // free the member information
+    for (i = 1; i <= model->numvertices; i++) {
+        node = members[i];
+        while (node) {
+            tail = node;
+            node = node->next;
+            free(tail);
+        }
+    }
+    free(members);
+
+    /* pack the normals array (we previously allocated the maximum
+    number of normals that could possibly be created (numtriangles *
+    3), so get rid of some of them (usually alot unless none of the
+    facet normals were averaged)) */
+    normals = model->normals;
+    model->normals = (f32*)malloc(sizeof(f32)* 3* (model->numnormals+1));
+    for (i = 1; i <= model->numnormals; i++) {
+        model->normals[3 * i + 0] = normals[3 * i + 0];
+        model->normals[3 * i + 1] = normals[3 * i + 1];
+        model->normals[3 * i + 2] = normals[3 * i + 2];
+    }
+    free(normals);
+}
+
+/**
+ * Generates facet normals for a model (by taking the
+ * cross product of the two vectors derived from the sides of each
+ * triangle).  Assumes a counter-clockwise winding.
+ *
+ * @param model Initialized GRRLIB_Model structure.
+ */
+void GRRLIB_FacetNormals(GRRLIB_Model* model) {
+    u32  i;
+    f32 u[3];
+    f32 v[3];
+
+    if(model == NULL || model->vertices == NULL)
+        return;
+
+    // clobber any old facetnormals
+    if (model->facetnorms)
+        free(model->facetnorms);
+
+    // allocate memory for the new facet normals
+    model->numfacetnorms = model->numtriangles;
+    model->facetnorms = (f32*)malloc(sizeof(f32) * 3 * (model->numfacetnorms + 1));
+
+    for (i = 0; i < model->numtriangles; i++) {
+        model->triangles[i].findex = i+1;
+
+        u[X] = model->vertices[3 * T(i).vindices[1] + X] -
+            model->vertices[3 * T(i).vindices[0] + X];
+        u[Y] = model->vertices[3 * T(i).vindices[1] + Y] -
+            model->vertices[3 * T(i).vindices[0] + Y];
+        u[Z] = model->vertices[3 * T(i).vindices[1] + Z] -
+            model->vertices[3 * T(i).vindices[0] + Z];
+
+        v[X] = model->vertices[3 * T(i).vindices[2] + X] -
+            model->vertices[3 * T(i).vindices[0] + X];
+        v[Y] = model->vertices[3 * T(i).vindices[2] + Y] -
+            model->vertices[3 * T(i).vindices[0] + Y];
+        v[Z] = model->vertices[3 * T(i).vindices[2] + Z] -
+            model->vertices[3 * T(i).vindices[0] + Z];
+
+        GRRLIB_Cross(u, v, &model->facetnorms[3 * (i+1)]);
+        GRRLIB_Normalize(&model->facetnorms[3 * (i+1)]);
+    }
+}
 
 
 

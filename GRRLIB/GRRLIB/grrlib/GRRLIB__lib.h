@@ -154,5 +154,7 @@ void Draw3dObj(GRRLIB_Model* model);
 GRRLIB_Model* GRRLIB_ReadOBJ(char* filename);
 GRRLIB_Model* GRRLIB_ReadOBJMem(const char *buffer, u32 size);
 void GRRLIB_DeleteObj(GRRLIB_Model* model);
+void GRRLIB_VertexNormals(GRRLIB_Model* model, f32 angle);
+void GRRLIB_FacetNormals(GRRLIB_Model* model);
 
 #endif // __GRRLIB_FNLIB_H__
