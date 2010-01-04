@@ -149,6 +149,15 @@ void GRRLIB_ObjectView(f32 posx, f32 posy, f32 posz, f32 angx, f32 angy, f32 ang
 void GRRLIB_SetTexture(GRRLIB_texImg *tex, bool rep);
 
 //------------------------------------------------------------------------------
+// GRRLIB_Freetype.c - FreeType function for GRRLIB
+GRRLIB_ttfFont* GRRLIB_LoadTTF(const u8* file_base, s32 file_size);
+void GRRLIB_FreeTTF(GRRLIB_ttfFont *myFont);
+void GRRLIB_PrintfTTF(int x, int y, GRRLIB_ttfFont *myFont, const char *string, unsigned int fontSize, const u32 color);
+void GRRLIB_PrintfTTFW(int x, int y, GRRLIB_ttfFont *myFont, const wchar_t *string, unsigned int fontSize, const u32 color);
+unsigned int GRRLIB_WidthTTF(GRRLIB_ttfFont *myFont, const char *, unsigned int);
+unsigned int GRRLIB_WidthTTFW(GRRLIB_ttfFont *myFont, const wchar_t *, unsigned int);
+
+//------------------------------------------------------------------------------
 // GRRLIB_3Dobj.c - 3D obj file functions for GRRLIB
 void Draw3dObj(GRRLIB_Model* model);
 GRRLIB_Model* GRRLIB_ReadOBJ(char* filename);
