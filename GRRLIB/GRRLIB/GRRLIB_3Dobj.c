@@ -555,12 +555,12 @@ void Draw3dObj(GRRLIB_Model* model) {
             GX_Position3f32(model->vertices[3 * T(group->triangles[i]).vindices[0] + X],
                             model->vertices[3 * T(group->triangles[i]).vindices[0] + Y],
                             model->vertices[3 * T(group->triangles[i]).vindices[0] + Z]);
-            GX_Color1u32(0xFFFFFFFF);
             if(model->numnormals) {
                 GX_Normal3f32(model->normals[3 * T(group->triangles[i]).nindices[0] + X],
                               model->normals[3 * T(group->triangles[i]).nindices[0] + Y],
                               model->normals[3 * T(group->triangles[i]).nindices[0] + Z]);
             }
+            GX_Color1u32(0xFFFFFFFF);
             if(model->numtexcoords) {
                 GX_TexCoord2f32(model->texcoords[2*T(group->triangles[i]).tindices[0] + X],
                                 model->texcoords[2*T(group->triangles[i]).tindices[0] + Y]);
@@ -570,12 +570,12 @@ void Draw3dObj(GRRLIB_Model* model) {
             GX_Position3f32(model->vertices[3 * T(group->triangles[i]).vindices[1] + X],
                             model->vertices[3 * T(group->triangles[i]).vindices[1] + Y],
                             model->vertices[3 * T(group->triangles[i]).vindices[1] + Z]);
-            GX_Color1u32(0xFFFFFFFF);
             if(model->numnormals) {
                 GX_Normal3f32(model->normals[3 * T(group->triangles[i]).nindices[1] + X],
                               model->normals[3 * T(group->triangles[i]).nindices[1] + Y],
                               model->normals[3 * T(group->triangles[i]).nindices[1] + Z]);
             }
+            GX_Color1u32(0xFFFFFFFF);
             if(model->numtexcoords) {
                 GX_TexCoord2f32(model->texcoords[2*T(group->triangles[i]).tindices[1] + X],
                                 model->texcoords[2*T(group->triangles[i]).tindices[1] + Y]);
@@ -585,12 +585,12 @@ void Draw3dObj(GRRLIB_Model* model) {
             GX_Position3f32(model->vertices[3 * T(group->triangles[i]).vindices[2] + X],
                             model->vertices[3 * T(group->triangles[i]).vindices[2] + Y],
                             model->vertices[3 * T(group->triangles[i]).vindices[2] + Z]);
-            GX_Color1u32(0xFFFFFFFF);
             if(model->numnormals) {
                 GX_Normal3f32(model->normals[3 * T(group->triangles[i]).nindices[2] + X],
                               model->normals[3 * T(group->triangles[i]).nindices[2] + Y],
                               model->normals[3 * T(group->triangles[i]).nindices[2] + Z]);
             }
+            GX_Color1u32(0xFFFFFFFF);
             if(model->numtexcoords) {
                 GX_TexCoord2f32(model->texcoords[2*T(group->triangles[i]).tindices[2] + X],
                                 model->texcoords[2*T(group->triangles[i]).tindices[2] + Y]);
