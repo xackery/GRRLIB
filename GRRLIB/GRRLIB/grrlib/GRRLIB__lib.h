@@ -150,6 +150,10 @@ void GRRLIB_SetTexture(GRRLIB_texImg *tex, bool rep);
 void GRRLIB_InitLight(u8 id, guVector lpos, u32 lcol);
 void GRRLIB_LightOff(void);
 void GRRLIB_LightSwitch(u8 id, u32 ambcol, u32 matcol, u8 colsrc);
+void GRRLIB_DrawTorus(f32 r, f32 R, int nsides, int rings, bool filled);
+void GRRLIB_DrawSphere(f32 r, int lats, int longs, bool filled);
+void GRRLIB_DrawCube(f32 size, bool filled);
+void GRRLIB_DrawCylinder(f32 r, f32 h, int d, bool filled);
 
 //------------------------------------------------------------------------------
 // GRRLIB_Freetype.c - FreeType function for GRRLIB
@@ -168,5 +172,7 @@ GRRLIB_Model* GRRLIB_ReadOBJMem(const char *buffer, u32 size);
 void GRRLIB_DeleteObj(GRRLIB_Model* model);
 void GRRLIB_VertexNormals(GRRLIB_Model* model, f32 angle);
 void GRRLIB_FacetNormals(GRRLIB_Model* model);
+void GRRLIB_LinearTexture(GRRLIB_Model* model);
+void GRRLIB_SpheremapTexture(GRRLIB_Model* model);
 
 #endif // __GRRLIB_FNLIB_H__

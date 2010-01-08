@@ -6,7 +6,7 @@
 #include <wiiuse/wpad.h>
 
 // Graphics
-#include "gfx/Pyramid.h"
+#include "texture_jpg.h"
 #include "font_png.h"
 
 
@@ -15,7 +15,7 @@ int main() {
     f32 modelRotY = 0.0f;
     f32 modelRotZ = 0.0f;
     f32 camZ = 50.0f;
-    u8 Amb = 0x80;
+    u8 Amb = 0x00;
     f32 zlight = 0.0f;
     GRRLIB_Model* model;
     const char strCtl1[]   = "DPAD TO ROTATE MODEL";
@@ -28,11 +28,20 @@ int main() {
     GRRLIB_texImg *tex_font = GRRLIB_LoadTexture(font_png);
     GRRLIB_InitTileSet(tex_font, 16, 16, 32);
 
-    GRRLIB_texImg *tex_obj = GRRLIB_LoadTexture(Pyramid);
+    GRRLIB_texImg *tex_obj = GRRLIB_LoadTextureJPGEx(texture_jpg, texture_jpg_size);
 
     GRRLIB_SetBackgroundColour(0x30, 0x30, 0x30, 0xFF);
 
     model = GRRLIB_ReadOBJ("sd:/data/head_chord.obj");
+
+    if(model->numnormals == 0) {
+        GRRLIB_FacetNormals(model);
+        GRRLIB_VertexNormals(model, 90.0);
+    }
+
+    if(model->numtexcoords == 0) {
+        GRRLIB_LinearTexture(model);
+    }
 
     while(1) {
         GRRLIB_Camera3dSettings(0.0f,0.0f,camZ, 0,1,0, 0,0,0);
@@ -44,11 +53,11 @@ int main() {
 
         GRRLIB_ObjectView(0, 0, 0, modelRotX, modelRotY, modelRotZ, 1, 1, 1);
 
-        GRRLIB_InitLight(GX_LIGHT0, (guVector){-6, 0, zlight}, 0xFF0000FF);
-        GRRLIB_InitLight(GX_LIGHT1, (guVector){ 6, 0, zlight}, 0x00FF00FF);
-        GRRLIB_InitLight(GX_LIGHT2, (guVector){ 0,-6, zlight}, 0x0000FFFF);
+        GRRLIB_InitLight(GX_LIGHT0, (guVector){-6, 0, zlight}, 0xFFFFFFFF);
+        GRRLIB_InitLight(GX_LIGHT1, (guVector){ 6, 0, zlight}, 0xFFFFFFFF);
+        GRRLIB_InitLight(GX_LIGHT2, (guVector){ 0,-6, zlight}, 0xFFFFFFFF);
 
-        GRRLIB_LightSwitch(GX_LIGHT0|GX_LIGHT1|GX_LIGHT2, RGBA(Amb,Amb,Amb,0xFF), 0x808080FF, 0);
+        GRRLIB_LightSwitch(GX_LIGHT0|GX_LIGHT1|GX_LIGHT2, RGBA(Amb,Amb,Amb,0xFF), 0xFFFFFFFF, 0);
 
         Draw3dObj(model);
 

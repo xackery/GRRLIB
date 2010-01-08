@@ -163,6 +163,70 @@ static void GRRLIB_Normalize(f32* n) {
     n[2] /= l;
 }
 
+/**
+ * Returns the maximum of two floats.
+*/
+static f32 GRRLIB_Max(f32 a, f32 b) {
+    if (a > b)
+        return a;
+    return b;
+}
+
+/**
+ * Returns the absolute value of a float.
+ */
+static f32 GRRLIB_Abs(f32 f)
+{
+    if (f < 0)
+        return -f;
+    return f;
+}
+
+/**
+ * Calculates the dimensions (width, height, depth) of a model.
+ *
+ * @param model Initialized GRRLIB_Model structure
+ * @param dimensions Array of 3 f32 (f32 dimensions[3])
+ */
+static void GRRLIB_Dimensions(GRRLIB_Model* model, f32* dimensions)
+{
+    u32 i;
+    f32 maxx, minx, maxy, miny, maxz, minz;
+
+    if(model == NULL || model->vertices == NULL || dimensions == NULL) {
+        dimensions[X] = 0;
+        dimensions[Y] = 0;
+        dimensions[Z] = 0;
+        return;
+    }
+
+    // get the max/mins
+    maxx = minx = model->vertices[3 + X];
+    maxy = miny = model->vertices[3 + Y];
+    maxz = minz = model->vertices[3 + Z];
+    for (i = 1; i <= model->numvertices; i++) {
+        if (maxx < model->vertices[3 * i + X])
+            maxx = model->vertices[3 * i + X];
+        if (minx > model->vertices[3 * i + X])
+            minx = model->vertices[3 * i + X];
+
+        if (maxy < model->vertices[3 * i + Y])
+            maxy = model->vertices[3 * i + Y];
+        if (miny > model->vertices[3 * i + Y])
+            miny = model->vertices[3 * i + Y];
+
+        if (maxz < model->vertices[3 * i + Z])
+            maxz = model->vertices[3 * i + Z];
+        if (minz > model->vertices[3 * i + Z])
+            minz = model->vertices[3 * i + Z];
+    }
+
+    // calculate model width, height, and depth
+    dimensions[X] = GRRLIB_Abs(maxx) + GRRLIB_Abs(minx);
+    dimensions[Y] = GRRLIB_Abs(maxy) + GRRLIB_Abs(miny);
+    dimensions[Z] = GRRLIB_Abs(maxz) + GRRLIB_Abs(minz);
+}
+
 static void GRRLIB_SecondPass(GRRLIB_Model* model, FILE* file) {
     u32    numvertices;     /* number of vertices in model */
     u32    numnormals;          /* number of normals in model */
@@ -811,12 +875,114 @@ void GRRLIB_FacetNormals(GRRLIB_Model* model) {
     }
 }
 
+/**
+ * Generates texture coordinates according to a
+ * linear projection of the texture map.  It generates these by
+ * linearly mapping the vertices onto a square.
+ *
+ * @param model Pointer to initialized GRRLIB_Model structure.
+ */
+void GRRLIB_LinearTexture(GRRLIB_Model* model) {
+    GRRLIB_Group *group;
+    f32 dimensions[3];
+    f32 x, y, scalefactor;
+    u32 i;
 
+    if(model == NULL)
+        return;
 
+    if(model->texcoords)
+        free(model->texcoords);
+    model->numtexcoords = model->numvertices;
+    model->texcoords=(f32*)malloc(sizeof(f32)*2*(model->numtexcoords+1));
 
+    GRRLIB_Dimensions(model, dimensions);
+    scalefactor = 2.0 / GRRLIB_Abs(GRRLIB_Max(GRRLIB_Max(dimensions[0], dimensions[1]), dimensions[2]));
 
+    // do the calculations
+    for(i = 1; i <= model->numvertices; i++) {
+        x = model->vertices[3 * i + 0] * scalefactor;
+        y = model->vertices[3 * i + 2] * scalefactor;
+        model->texcoords[2 * i + 0] = (x + 1.0) / 2.0;
+        model->texcoords[2 * i + 1] = (y + 1.0) / 2.0;
+    }
 
+    // go through and put texture coordinate indices in all the triangles
+    group = model->groups;
+    while(group) {
+        for(i = 0; i < group->numtriangles; i++) {
+            T(group->triangles[i]).tindices[0] = T(group->triangles[i]).vindices[0];
+            T(group->triangles[i]).tindices[1] = T(group->triangles[i]).vindices[1];
+            T(group->triangles[i]).tindices[2] = T(group->triangles[i]).vindices[2];
+        }
+        group = group->next;
+    }
+}
 
+/**
+ * Generates texture coordinates according to a
+ * spherical projection of the texture map.  Sometimes referred to as
+ * spheremap, or reflection map texture coordinates.  It generates
+ * these by using the normal to calculate where that vertex would map
+ * onto a sphere.  Since it is impossible to map something flat
+ * perfectly onto something spherical, there is distortion at the
+ * poles.  This particular implementation causes the poles along the X
+ * axis to be distorted.
+ *
+ * @param model Pointer to initialized GRRLIB_Model structure.
+ */
+void GRRLIB_SpheremapTexture(GRRLIB_Model* model) {
+    GRRLIB_Group* group;
+    f32 theta, phi, rho, x, y, z, r;
+    u32 i;
+
+    if(model == NULL || model->normals == NULL)
+        return;
+
+    if (model->texcoords)
+        free(model->texcoords);
+    model->numtexcoords = model->numnormals;
+    model->texcoords=(f32*)malloc(sizeof(f32)*2*(model->numtexcoords+1));
+
+    // do the calculations
+    for (i = 1; i <= model->numnormals; i++) {
+        z = model->normals[3 * i + 0];	/* re-arrange for pole distortion */
+        y = model->normals[3 * i + 1];
+        x = model->normals[3 * i + 2];
+        r = sqrt((x * x) + (y * y));
+        rho = sqrt((r * r) + (z * z));
+
+        if(r == 0.0) {
+            theta = 0.0;
+            phi = 0.0;
+        }
+        else {
+            if(z == 0.0)
+                phi = M_PI / 2.0;
+            else
+                phi = acos(z / rho);
+
+            if(y == 0.0)
+                theta = M_PI / 2.0;	/* acos(x / r); */
+            else
+                theta = asin(y / r) + (M_PI / 2.0);
+        }
+
+        model->texcoords[2 * i + 0] = theta / 3.14159265;
+        model->texcoords[2 * i + 1] = phi / 3.14159265;
+    }
+
+    // go through and put texcoord indices in all the triangles
+    group = model->groups;
+    while(group) {
+        for (i = 0; i < group->numtriangles; i++) {
+            T(group->triangles[i]).tindices[0] = T(group->triangles[i]).nindices[0];
+            T(group->triangles[i]).tindices[1] = T(group->triangles[i]).nindices[1];
+            T(group->triangles[i]).tindices[2] = T(group->triangles[i]).nindices[2];
+        }
+        group = group->next;
+    }
+}
 
 
 
