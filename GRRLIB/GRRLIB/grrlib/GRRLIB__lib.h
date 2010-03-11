@@ -23,6 +23,7 @@ THE SOFTWARE.
 /**
  * @file GRRLIB__lib.h
  * GRRLIB library function prototypes.
+ * Do not include GRRLIB__lib.h directly, include only GRRLIB.h.
  */
 
 #ifndef __GRRLIB_H__
@@ -153,7 +154,7 @@ void GRRLIB_DrawCube(f32 size, bool filled);
 void GRRLIB_DrawCylinder(f32 r, f32 h, int d, bool filled);
 
 //------------------------------------------------------------------------------
-// GRRLIB_Freetype.c - FreeType function for GRRLIB
+// GRRLIB_ttf.c - FreeType function for GRRLIB
 GRRLIB_ttfFont* GRRLIB_LoadTTF(const u8* file_base, s32 file_size);
 void GRRLIB_FreeTTF(GRRLIB_ttfFont *myFont);
 void GRRLIB_PrintfTTF(int x, int y, GRRLIB_ttfFont *myFont, const char *string, unsigned int fontSize, const u32 color);

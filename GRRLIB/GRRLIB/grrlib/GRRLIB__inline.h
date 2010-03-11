@@ -26,7 +26,7 @@ THE SOFTWARE.
  */
 
 #ifndef __GRRLIB_H__
-#  error Do not include GRRLIB_fnInline.h directly, include only GRRLIB.h
+#  error Do not include GRRLIB__inline.h directly, include only GRRLIB.h
 #endif
 
 #ifndef __GRRLIB_FNINLINE_H__
