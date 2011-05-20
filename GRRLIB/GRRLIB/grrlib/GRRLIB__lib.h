@@ -1,5 +1,5 @@
 /*------------------------------------------------------------------------------
-Copyright (c) 2010 The GRRLIB Team
+Copyright (c) 2011 The GRRLIB Team
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -25,6 +25,10 @@ THE SOFTWARE.
  * GRRLIB library function prototypes.
  * Do not include GRRLIB__lib.h directly, include only GRRLIB.h.
  */
+/**
+ * @addtogroup AllFunc
+ * @{
+ */
 
 #ifndef __GRRLIB_H__
 #  error Do not include GRRLIB__lib.h directly, include only GRRLIB.h
@@ -40,7 +44,7 @@ THE SOFTWARE.
 //------------------------------------------------------------------------------
 // GRRLIB_bmf.c - BitMapFont functions
 GRRLIB_bytemapFont*  GRRLIB_LoadBMF (const u8 my_bmf[] );
-void                 GRRLIB_FreeBMF (const GRRLIB_bytemapFont *bmf);
+void                 GRRLIB_FreeBMF (GRRLIB_bytemapFont *bmf);
 
 void  GRRLIB_InitTileSet  (GRRLIB_texImg *tex,
                            const uint tilew, const uint tileh,
@@ -124,8 +128,8 @@ void  GRRLIB_Render  (void);
 //------------------------------------------------------------------------------
 // GRRLIB_snapshot.c - Create a texture containing a snapshot of a part of the framebuffer
 void  GRRLIB_Screen2Texture (int posx, int posy, GRRLIB_texImg *tex, bool clear);
-void GRRLIB_CompoStart (void);
-void GRRLIB_CompoEnd(int posx, int posy, GRRLIB_texImg *tex);
+void  GRRLIB_CompoStart (void);
+void  GRRLIB_CompoEnd(int posx, int posy, GRRLIB_texImg *tex);
 
 //------------------------------------------------------------------------------
 // GRRLIB_texEdit.c - Modifying the content of a texture
@@ -144,14 +148,27 @@ void GRRLIB_GeckoPrintf (const char *text, ...);
 // GRRLIB_3D.c - 3D functions for GRRLIB
 void GRRLIB_SetBackgroundColour(u8 r, u8 g, u8 b, u8 a);
 void GRRLIB_Camera3dSettings(f32 posx, f32 posy, f32 posz, f32 upx, f32 upy, f32 upz, f32 lookx, f32 looky, f32 lookz);
-void GRRLIB_3dMode(f32 minDist, f32 maxDist, f32 fov, bool colormode, bool texturemode, bool normalmode);
+void GRRLIB_3dMode(f32 minDist, f32 maxDist, f32 fov, bool texturemode, bool normalmode);
 void GRRLIB_2dMode();
+void GRRLIB_ObjectViewBegin(void);
+void GRRLIB_ObjectViewScale(f32 scalx, f32 scaly, f32 scalz);
+void GRRLIB_ObjectViewRotate(f32 angx, f32 angy, f32 angz);
+void GRRLIB_ObjectViewTrans(f32 posx, f32 posy, f32 posz);
+void GRRLIB_ObjectViewEnd(void);
 void GRRLIB_ObjectView(f32 posx, f32 posy, f32 posz, f32 angx, f32 angy, f32 angz,  f32 scalx, f32 scaly, f32 scalz);
+void GRRLIB_ObjectViewInv(f32 posx, f32 posy, f32 posz, f32 angx, f32 angy, f32 angz,  f32 scalx, f32 scaly, f32 scalz);
 void GRRLIB_SetTexture(GRRLIB_texImg *tex, bool rep);
-void GRRLIB_DrawTorus(f32 r, f32 R, int nsides, int rings, bool filled);
-void GRRLIB_DrawSphere(f32 r, int lats, int longs, bool filled);
-void GRRLIB_DrawCube(f32 size, bool filled);
-void GRRLIB_DrawCylinder(f32 r, f32 h, int d, bool filled);
+void GRRLIB_DrawTorus(f32 r, f32 R, int nsides, int rings, bool filled, u32 col);
+void GRRLIB_DrawSphere(f32 r, int lats, int longs, bool filled, u32 col);
+void GRRLIB_DrawCube(f32 size, bool filled, u32 col);
+void GRRLIB_DrawCylinder(f32 r, f32 h, int d, bool filled, u32 col);
+void GRRLIB_DrawCone(f32 r, f32 h, int d, bool filled, u32 col);
+void GRRLIB_DrawTessPanel(f32 w, f32 wstep, f32 h, f32 hstep, bool filled, u32 col);
+void GRRLIB_SetLightAmbient(u32 ambientcolor);
+void GRRLIB_SetLightDiff(u8 num, guVector pos, f32 distattn, f32 brightness, u32 lightcolor);
+void GRRLIB_SetLightSpec(u8 num, guVector dir, f32 shy, u32 lightcolor, u32 speccolor);
+void GRRLIB_SetLightSpot(u8 num, guVector pos, guVector lookat, f32 angAttn0, f32 angAttn1, f32 angAttn2, f32 distAttn0, f32 distAttn1, f32 distAttn2, u32 lightcolor);
+void GRRLIB_SetLightOff(void);
 
 //------------------------------------------------------------------------------
 // GRRLIB_ttf.c - FreeType function for GRRLIB
@@ -174,3 +191,4 @@ void GRRLIB_LinearTexture(GRRLIB_Model* model);
 void GRRLIB_SpheremapTexture(GRRLIB_Model* model);
 
 #endif // __GRRLIB_FNLIB_H__
+/** @} */ // end of group

@@ -1,5 +1,5 @@
 /*------------------------------------------------------------------------------
-Copyright (c) 2010 The GRRLIB Team
+Copyright (c) 2011 The GRRLIB Team
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -23,6 +23,11 @@ THE SOFTWARE.
 /**
  * @file GRRLIB__inline.h
  * GRRLIB inline function prototypes.
+ * Do not include GRRLIB__inline.h directly, include only GRRLIB.h.
+ */
+/**
+ * @addtogroup AllFunc
+ * @{
  */
 
 #ifndef __GRRLIB_H__
@@ -35,10 +40,6 @@ THE SOFTWARE.
 //==============================================================================
 // Prototypes for inlined functions
 //==============================================================================
-
-//------------------------------------------------------------------------------
-// GRRLIB_cExtn.h - C extensions (helper functions)
-INLINE  u8    GRRLIB_ClampVar8 (f32 Value);
 
 //------------------------------------------------------------------------------
 // GRRLIB_clipping.h - Clipping control
@@ -84,7 +85,7 @@ INLINE  void  GRRLIB_Line       (const f32 x1, const f32 y1,
                                  const f32 x2, const f32 y2, const u32 color);
 INLINE  void  GRRLIB_Rectangle  (const f32 x,      const f32 y,
                                  const f32 width,  const f32 height,
-                                 const u32 color, const u8 filled);
+                                 const u32 color, const bool filled);
 
 //------------------------------------------------------------------------------
 // GRRLIB_handle.h - Texture handle manipulation
@@ -99,9 +100,8 @@ INLINE  u32   GRRLIB_GetPixelFromtexImg (const int x, const int y,
 INLINE  void  GRRLIB_SetPixelTotexImg   (const int x, const int y,
                                          GRRLIB_texImg *tex, const u32 color);
 
-INLINE  void  GRRLIB_GetPixelFromFB (int x, int y,
-                                     u8 *R1,  u8 *G1,  u8 *B1,
-                                     u8 *R2,  u8 *G2,  u8 *B2);
+INLINE u32 GRRLIB_GetPixelFromFB (int x, int y);
+INLINE void GRRLIB_SetPixelToFB (int x, int y, u32 pokeColor);
 
 //------------------------------------------------------------------------------
 // GRRLIB_settings.h - Rendering functions
@@ -120,7 +120,6 @@ INLINE  void            GRRLIB_FreeTexture        (GRRLIB_texImg *tex);
 //==============================================================================
 // Definitions of inlined functions
 //==============================================================================
-#include <grrlib/GRRLIB_cExtn.h>      // C extensions (helper functions)
 #include <grrlib/GRRLIB_clipping.h>   // Clipping control
 #include <grrlib/GRRLIB_collision.h>  // Collision detection
 #include <grrlib/GRRLIB_fbComplex.h>  // Render to framebuffer: Complex primitives
@@ -132,3 +131,4 @@ INLINE  void            GRRLIB_FreeTexture        (GRRLIB_texImg *tex);
 #include <grrlib/GRRLIB_texSetup.h>   // Setup for textures
 
 #endif // __GRRLIB_FNINLINE_H__
+/** @} */ // end of group

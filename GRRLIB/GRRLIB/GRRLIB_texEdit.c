@@ -1,5 +1,5 @@
 /*------------------------------------------------------------------------------
-Copyright (c) 2010 The GRRLIB Team
+Copyright (c) 2011 The GRRLIB Team
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -27,6 +27,44 @@ THE SOFTWARE.
 #include <string.h>
 
 #include <grrlib.h>
+
+/**
+ * This structure contains information about the type, size, and layout of a file that containing a device-independent bitmap (DIB).
+ */
+typedef  struct tagBITMAPFILEHEADER {
+    u16 bfType;             /**< Specifies the file type. It must be set to the signature word BM (0x4D42) to indicate bitmap. */
+    u32 bfSize;             /**< Specifies the size, in bytes, of the bitmap file. */
+    u16 bfReserved1;        /**< Reserved; set to zero. */
+    u16 bfReserved2;        /**< Reserved; set to zero. */
+    u32 bfOffBits;          /**< Specifies the offset, in bytes, from the BITMAPFILEHEADER structure to the bitmap bits. */
+} BITMAPFILEHEADER;
+/**
+ * This structure contains information about the dimensions and color format of a device-independent bitmap (DIB).
+ */
+typedef  struct tagBITMAPINFOHEADER {
+    u32 biSize;             /**< Specifies the size of the structure, in bytes. */
+    u32 biWidth;            /**< Specifies the width of the bitmap, in pixels. */
+    u32 biHeight;           /**< Specifies the height of the bitmap, in pixels. */
+    u16 biPlanes;           /**< Specifies the number of planes for the target device. */
+    u16 biBitCount;         /**< Specifies the number of bits per pixel. */
+    u32 biCompression;      /**< Specifies the type of compression for a compressed bottom-up bitmap.*/
+    u32 biSizeImage;        /**< Specifies the size, in bytes, of the image. */
+    u32 biXPelsPerMeter;    /**< Specifies the horizontal resolution, in pixels per meter, of the target device for the bitmap. */
+    u32 biYPelsPerMeter;    /**< Specifies the vertical resolution, in pixels per meter, of the target device for the bitmap. */
+    u32 biClrUsed;          /**< Specifies the number of color indexes in the color table that are actually used by the bitmap. */
+    u32 biClrImportant;     /**< Specifies the number of color indexes required for displaying the bitmap. */
+} BITMAPINFOHEADER;
+/**
+ * The RGBQUAD structure describes a color consisting of relative intensities of
+ * red, green, and blue. The bmiColors member of the BITMAPINFO structure
+ * consists of an array of RGBQUAD structures.
+ */
+typedef  struct tagRGBQUAD {
+    u8 rgbBlue;             /**< Specifies the intensity of blue in the color. */
+    u8 rgbGreen;            /**< Specifies the intensity of green in the color. */
+    u8 rgbRed;              /**< Specifies the intensity of red in the color. */
+    u8 rgbReserved;         /**< Not used; must be set to zero. */
+} RGBQUAD;
 
 /**
  * Convert a raw BMP (RGB, no alpha) to 4x4RGBA.
@@ -89,8 +127,10 @@ GRRLIB_texImg*  GRRLIB_LoadTexture (const u8 *my_img) {
  * Load a texture from a buffer.
  * @param my_png the PNG buffer to load.
  * @return A GRRLIB_texImg structure filled with image information.
+ *         If image size is not correct, the texture will be completely transparent.
  */
 GRRLIB_texImg*  GRRLIB_LoadTexturePNG (const u8 *my_png) {
+    int width = 0, height = 0;
     PNGUPROP imgProp;
     IMGCTX ctx;
     GRRLIB_texImg *my_texture = calloc(1, sizeof(GRRLIB_texImg));
@@ -98,19 +138,16 @@ GRRLIB_texImg*  GRRLIB_LoadTexturePNG (const u8 *my_png) {
     if(my_texture != NULL) {
         ctx = PNGU_SelectImageFromBuffer(my_png);
         PNGU_GetImageProperties(ctx, &imgProp);
-        my_texture->data = memalign(32, imgProp.imgWidth * imgProp.imgHeight * 4);
+        my_texture->data = PNGU_DecodeTo4x4RGBA8(ctx, imgProp.imgWidth, imgProp.imgHeight, &width, &height, NULL);
         if(my_texture->data != NULL) {
-            if(PNGU_DecodeTo4x4RGBA8(ctx, imgProp.imgWidth, imgProp.imgHeight, my_texture->data, 255) == PNGU_OK) {
-                my_texture->w = imgProp.imgWidth;
-                my_texture->h = imgProp.imgHeight;
-                GRRLIB_SetHandle( my_texture, 0, 0 );
-                GRRLIB_FlushTex( my_texture );
+            my_texture->w = width;
+            my_texture->h = height;
+            GRRLIB_SetHandle( my_texture, 0, 0 );
+            if(imgProp.imgWidth != width || imgProp.imgHeight != height) {
+                // PNGU has resized the texture
+                memset(my_texture->data, 0, (my_texture->h * my_texture->w) << 2);
             }
-            else
-            {
-                free(my_texture->data);
-                my_texture->data = NULL;
-            }
+            GRRLIB_FlushTex( my_texture );
         }
         PNGU_ReleaseImageContext(ctx);
     }

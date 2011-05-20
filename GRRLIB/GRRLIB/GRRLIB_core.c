@@ -1,5 +1,5 @@
 /*------------------------------------------------------------------------------
-Copyright (c) 2010 The GRRLIB Team
+Copyright (c) 2011 The GRRLIB Team
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -28,7 +28,7 @@ THE SOFTWARE.
 
 #define __GRRLIB_CORE__
 #include <grrlib.h>
-#include "grrlib/GRRLIB_ttf.h"
+#include "grrlib/GRRLIB_private.h"
 
 #define DEFAULT_FIFO_SIZE (256 * 1024) /**< GX fifo buffer size. */
 
@@ -41,7 +41,7 @@ static bool  is_setup = false;  // To control entry and exit
 
 /**
  * Initialize GRRLIB. Call this once at the beginning your code.
- * @return A integer representating a code:
+ * @return A integer representing a code:
  *         -     0 : The operation completed successfully.
  *         -    -1 : Not enough memory is available to initialize GRRLIB.
  *         -    -2 : Failed to add the fat device driver to the devoptab.
@@ -144,10 +144,10 @@ int  GRRLIB_Init (void) {
     guMtxTransApply(GXmodelView2D, GXmodelView2D, 0.0F, 0.0F, -100.0F);
     GX_LoadPosMtxImm(GXmodelView2D, GX_PNMTX0);
 
-    guOrtho(perspective, 0, rmode->efbHeight, 0, rmode->fbWidth, 0, 1000.0f);
+    guOrtho(perspective, 0.0f, rmode->efbHeight, 0.0f, rmode->fbWidth, 0.0f, 1000.0f);
     GX_LoadProjectionMtx(perspective, GX_ORTHOGRAPHIC);
 
-    GX_SetViewport(0, 0, rmode->fbWidth, rmode->efbHeight, 0, 1);
+    GX_SetViewport(0.0f, 0.0f, rmode->fbWidth, rmode->efbHeight, 0.0f, 1.0f);
     GX_SetBlendMode(GX_BM_BLEND, GX_BL_SRCALPHA, GX_BL_INVSRCALPHA, GX_LO_CLEAR);
     GX_SetAlphaUpdate(GX_TRUE);
     GX_SetAlphaCompare(GX_GREATER, 0, GX_AOP_AND, GX_ALWAYS, 0);
@@ -158,6 +158,7 @@ int  GRRLIB_Init (void) {
     // Default settings
     GRRLIB_Settings.antialias = true;
     GRRLIB_Settings.blend     = GRRLIB_BLEND_ALPHA;
+    GRRLIB_Settings.lights    = 0;
 
     // Schedule cleanup for when program exits
     is_setup = true;

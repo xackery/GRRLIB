@@ -1,5 +1,5 @@
 /*------------------------------------------------------------------------------
-Copyright (c) 2010 The GRRLIB Team
+Copyright (c) 2011 The GRRLIB Team
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -45,15 +45,16 @@ void  GRRLIB_Printf (const f32 xpos, const f32 ypos,
 
     int i, size;
     char tmp[1024];
+    f32 offset = tex->tilew * zoom;
 
     va_list argp;
     va_start(argp, text);
-    size = vsprintf(tmp, text, argp);
+    size = vsnprintf(tmp, sizeof(tmp), text, argp);
     va_end(argp);
 
     for (i = 0; i < size; i++) {
-        u8 c = tmp[i]-tex->tilestart;
-        GRRLIB_DrawTile(xpos+i*tex->tilew*zoom, ypos, tex, 0, zoom, zoom, color, c);
+        GRRLIB_DrawTile(xpos+i*offset, ypos, tex, 0, zoom, zoom, color,
+            tmp[i] - tex->tilestart);
     }
 }
 
@@ -69,11 +70,12 @@ void  GRRLIB_Printf (const f32 xpos, const f32 ypos,
 void  GRRLIB_PrintBMF (const f32 xpos, const f32 ypos,
                        const GRRLIB_bytemapFont *bmf,
                        const char *text, ...) {
-    uint  i, n, size;
-    u16   j;
+    uint  i, size;
+    u8    *pdata;
     u8    x, y;
     char  tmp[1024];
     f32   xoff = xpos;
+    const GRRLIB_bytemapChar *pchar;
 
     va_list argp;
     va_start(argp, text);
@@ -81,22 +83,18 @@ void  GRRLIB_PrintBMF (const f32 xpos, const f32 ypos,
     va_end(argp);
 
     for (i=0; i<size; i++) {
-        for (j=0; j<bmf->nbChar; j++) {
-            if (tmp[i] == bmf->charDef[j].character) {
-                n=0;
-                for (y=0; y<bmf->charDef[j].height; y++) {
-                    for (x=0; x<bmf->charDef[j].width; x++) {
-                        if (bmf->charDef[j].data[n]) {
-                            GRRLIB_Plot(xoff + x + bmf->charDef[j].relx,
-                                        ypos + y + bmf->charDef[j].rely,
-                                        bmf->palette[bmf->charDef[j].data[n]]);
-                        }
-                        n++;
-                    }
+        pchar = &bmf->charDef[(u8)tmp[i]];
+        pdata = pchar->data;
+        for (y=0; y<pchar->height; y++) {
+            for (x=0; x<pchar->width; x++) {
+                if (*pdata) {
+                    GRRLIB_Plot(xoff + x + pchar->relx,
+                                ypos + y + pchar->rely,
+                                bmf->palette[*pdata]);
                 }
-                xoff += bmf->charDef[j].kerning + bmf->tracking;
-                break;
+                pdata++;
             }
         }
+        xoff += pchar->kerning + bmf->tracking;
     }
 }

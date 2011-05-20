@@ -1,5 +1,5 @@
 /*------------------------------------------------------------------------------
-Copyright (c) 2010 The GRRLIB Team
+Copyright (c) 2011 The GRRLIB Team
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -22,7 +22,13 @@ THE SOFTWARE.
 
 /**
  * @file GRRLIB.h
- * GRRLIB user include file
+ * GRRLIB user include file.
+ */
+/**
+ * @defgroup AllFunc Everything in GRRLIB
+ * This is the complete list of functions, structures, defines, typedefs, enumerations and variables you may want to used to make your homebrew with GRRLIB.
+ * You simply need to include grrlib.h in your project to have access to all of these.
+ * @{
  */
 
 #ifndef __GRRLIB_H__
@@ -31,14 +37,12 @@ THE SOFTWARE.
 /**
  * Version information for GRRLIB.
  */
-#define GRRLIB_VER_STRING "4.2.1 BETA"
+#define GRRLIB_VER_STRING "4.3.2 beta"
 
 //==============================================================================
 // Includes
 //==============================================================================
 #include <gccore.h>
-#include <ft2build.h>
-#include FT_FREETYPE_H
 //==============================================================================
 
 //==============================================================================
@@ -51,18 +55,22 @@ THE SOFTWARE.
 //==============================================================================
 // Extra standard declarations
 //==============================================================================
-typedef  unsigned int  uint;
+typedef  unsigned int  uint;/**< The uint keyword signifies an integral type. */
 
 //==============================================================================
 // Primitive colour macros
 //==============================================================================
-#define R(c)  (((c) >>24) &0xFF)  /**< Exract Red   component of colour. */
-#define G(c)  (((c) >>16) &0xFF)  /**< Exract Green component of colour. */
-#define B(c)  (((c) >> 8) &0xFF)  /**< Exract Blue  component of colour. */
-#define A(c)  ( (c)       &0xFF)  /**< Exract Alpha component of colour. */
+#define R(c)  (((c) >>24) &0xFF)  /**< Extract red component of colour. */
+#define G(c)  (((c) >>16) &0xFF)  /**< Extract green component of colour. */
+#define B(c)  (((c) >> 8) &0xFF)  /**< Extract blue component of colour. */
+#define A(c)  ( (c)       &0xFF)  /**< Extract alpha component of colour. */
 
 /**
  * Build an RGB pixel from components.
+ * @param r Red component.
+ * @param g Green component.
+ * @param b Blue component.
+ * @param a Alpha component.
  */
 #define RGBA(r,g,b,a) ( (u32)( ( ((u32)(r))        <<24) |  \
                                ((((u32)(g)) &0xFF) <<16) |  \
@@ -94,6 +102,7 @@ typedef  enum GRRLIB_blendMode {
 typedef  struct GRRLIB_drawSettings {
     bool              antialias;    /**< AntiAlias is enabled when set to true. */
     GRRLIB_blendMode  blend;        /**< Blending Mode.                         */
+    int               lights;       /**< Active lights.                         */
 } GRRLIB_drawSettings;
 
 //------------------------------------------------------------------------------
@@ -101,16 +110,16 @@ typedef  struct GRRLIB_drawSettings {
  * Structure to hold the texture information.
  */
 typedef  struct GRRLIB_texImg {
-    uint   w;           /**< Texture width.    */
-    uint   h;           /**< Texture height.   */
+    uint   w;           /**< The width of the texture in pixels.  */
+    uint   h;           /**< The height of the texture in pixels. */
     int    handlex;     /**< Texture handle x. */
     int    handley;     /**< Texture handle y. */
     int    offsetx;     /**< Texture offset x. */
     int    offsety;     /**< Texture offset y. */
 
     bool   tiledtex;    /**< Texture is tiled if set to true.   */
-    uint   tilew;       /**< Width of one tile.                 */
-    uint   tileh;       /**< Height of one tile.                */
+    uint   tilew;       /**< The width of one tile in pixels.   */
+    uint   tileh;       /**< The height of one tile in pixels.  */
     uint   nbtilew;     /**< Number of tiles for the x axis.    */
     uint   nbtileh;     /**< Number of tiles for the y axis.    */
     uint   tilestart;   /**< Offset to tile starting position.  */
@@ -125,7 +134,6 @@ typedef  struct GRRLIB_texImg {
  * Structure to hold the bytemap character information.
  */
 typedef  struct GRRLIB_bytemapChar {
-    u8  character;      /**< Character identity. */
     u8  width;          /**< Character width.    */
     u8  height;         /**< Character height.   */
     s8  relx;           /**< Horizontal offset relative to cursor (-128 to 127).            */
@@ -145,56 +153,17 @@ typedef  struct GRRLIB_bytemapFont {
     u8    version;              /**< Version.                        */
     s8    tracking;             /**< Tracking (Add-space after each char) (-128 to 127). */
 
-    GRRLIB_bytemapChar  *charDef;   /**< Array of bitmap characters. */
+    GRRLIB_bytemapChar charDef[256];   /**< Array of bitmap characters. */
 } GRRLIB_bytemapFont;
 
 //------------------------------------------------------------------------------
 /**
  * Structure to hold the TTF information.
  */
-typedef struct GRRLIB_Font {
-    FT_Face face;       /**< A TTF face object. */
-    FT_Bool kerning;    /**< true whenever a face object contains kerning data that can be accessed with FT_Get_Kerning. */
+typedef  struct GRRLIB_Font {
+    void *face;     /**< A TTF face object. */
+    bool kerning;   /**< true whenever a face object contains kerning data that can be accessed with FT_Get_Kerning. */
 } GRRLIB_ttfFont;
-
-//------------------------------------------------------------------------------
-/**
- * This structure contains information about the type, size, and layout of a file that containing a device-independent bitmap (DIB).
- */
-typedef  struct tagBITMAPFILEHEADER {
-    u16 bfType;             /**< Specifies the file type. It must be set to the signature word BM (0x4D42) to indicate bitmap. */
-    u32 bfSize;             /**< Specifies the size, in bytes, of the bitmap file. */
-    u16 bfReserved1;        /**< Reserved; set to zero. */
-    u16 bfReserved2;        /**< Reserved; set to zero. */
-    u32 bfOffBits;          /**< Specifies the offset, in bytes, from the BITMAPFILEHEADER structure to the bitmap bits. */
-} BITMAPFILEHEADER;
-/**
- * This structure contains information about the dimensions and color format of a device-independent bitmap (DIB).
- */
-typedef  struct tagBITMAPINFOHEADER {
-    u32 biSize;             /**< Specifies the size of the structure, in bytes. */
-    u32 biWidth;            /**< Specifies the width of the bitmap, in pixels. */
-    u32 biHeight;           /**< Specifies the height of the bitmap, in pixels. */
-    u16 biPlanes;           /**< Specifies the number of planes for the target device. */
-    u16 biBitCount;         /**< Specifies the number of bits per pixel. */
-    u32 biCompression;      /**< Specifies the type of compression for a compressed bottom-up bitmap.*/
-    u32 biSizeImage;        /**< Specifies the size, in bytes, of the image. */
-    u32 biXPelsPerMeter;    /**< Specifies the horizontal resolution, in pixels per meter, of the target device for the bitmap. */
-    u32 biYPelsPerMeter;    /**< Specifies the vertical resolution, in pixels per meter, of the target device for the bitmap. */
-    u32 biClrUsed;          /**< Specifies the number of color indexes in the color table that are actually used by the bitmap. */
-    u32 biClrImportant;     /**< Specifies the number of color indexes required for displaying the bitmap. */
-} BITMAPINFOHEADER;
-/**
- * The RGBQUAD structure describes a color consisting of relative intensities of
- * red, green, and blue. The bmiColors member of the BITMAPINFO structure
- * consists of an array of RGBQUAD structures.
- */
-typedef struct tagRGBQUAD {
-    u8 rgbBlue;             /**< Specifies the intensity of blue in the color. */
-    u8 rgbGreen;            /**< Specifies the intensity of green in the color. */
-    u8 rgbRed;              /**< Specifies the intensity of red in the color. */
-    u8 rgbReserved;         /**< Not used; must be set to zero. */
-} RGBQUAD;
 
 //------------------------------------------------------------------------------
 /**
@@ -300,11 +269,12 @@ GRR_EXTERN  u32         fb       GRR_INIT(0);
 #endif /* __cplusplus */
 
 #endif // __GRRLIB_H__
-
+/** @} */ // end of group
 /**
  * @mainpage GRRLIB Documentation
  * @image html grrlib_logo.png
  * Welcome to the GRRLIB documentation.
+ * A complete list of functions is available from this \ref AllFunc "page".
  *
  * @section Introduction
  * GRRLIB is a C/C++ 2D/3D graphics library for Wii application developers.
@@ -313,7 +283,7 @@ GRR_EXTERN  u32         fb       GRR_INIT(0);
  * @section Links
  * Forum: http://grrlib.santo.fr/forum\n
  * Code: http://code.google.com/p/grrlib\n
- * IRC: <a href="irc://irc.efnet.net/grrlib">##GRRLIB</a> on EFnet
+ * IRC: <a href="irc://irc.efnet.net/grrlib">#GRRLIB</a> on EFnet
  *
  * @section Credits
  * Project Leader : NoNameNo\n
@@ -323,7 +293,7 @@ GRR_EXTERN  u32         fb       GRR_INIT(0);
  * Advisors       : RedShade, Jespa\n
  *
  * @section Licence
- * Copyright (c) 2010 The GRRLIB Team
+ * Copyright (c) 2011 The GRRLIB Team
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal

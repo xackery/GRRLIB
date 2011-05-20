@@ -1,5 +1,5 @@
 /*------------------------------------------------------------------------------
-Copyright (c) 2010 The GRRLIB Team
+Copyright (c) 2011 The GRRLIB Team
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -103,9 +103,9 @@ void  GRRLIB_BMFX_Sepia (const GRRLIB_texImg *texsrc, GRRLIB_texImg *texdest) {
             sr = R(color)*0.393 + G(color)*0.769 + B(color)*0.189;
             sg = R(color)*0.349 + G(color)*0.686 + B(color)*0.168;
             sb = R(color)*0.272 + G(color)*0.534 + B(color)*0.131;
-            if (sr>255) sr=255;  if (sg>255) sg=255;  if (sb>255) sb=255;
+            if (sr>255) sr=255;  if (sg>255) sg=255;
             GRRLIB_SetPixelTotexImg(x, y, texdest,
-                                    RGBA(sr,sg,sb,A(color)));
+                                    RGBA(sr, sg, sb, A(color)));
         }
     }
     GRRLIB_SetHandle(texdest, 0, 0);
@@ -158,11 +158,12 @@ void  GRRLIB_BMFX_Blur (const GRRLIB_texImg *texsrc,
 
             for (k = x - factor; k <= x + factor; k++) {
                 for (l = y - factor; l <= y + factor; l++) {
-                    if (k < 0) { colours[tmp] = thiscol; }
-                    else if (k >= texsrc->w) { colours[tmp] = thiscol; }
-                    else if (l < 0) { colours[tmp] = thiscol; }
-                    else if (l >= texsrc->h) { colours[tmp] = thiscol; }
-                    else { colours[tmp] = GRRLIB_GetPixelFromtexImg(k, l, texsrc); }
+                    if (k < 0 || k >= texsrc->w || l < 0 || l >= texsrc->h) {
+                        colours[tmp] = thiscol;
+                    }
+                    else {
+                        colours[tmp] = GRRLIB_GetPixelFromtexImg(k, l, texsrc);
+                    }
                     tmp++;
                 }
             }

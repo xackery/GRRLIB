@@ -1,5 +1,5 @@
 /*------------------------------------------------------------------------------
-Copyright (c) 2010 The GRRLIB Team
+Copyright (c) 2011 The GRRLIB Team
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -20,23 +20,31 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ------------------------------------------------------------------------------*/
 
-/**
- * Inline functions to offer additional C primitives.
+/*
+ * @file GRRLIB_private.h
+ * The symbols declared in this file are PRIVATE.
+ * They are not part of the GRRLIB public
+ * interface, and are not recommended for use by regular applications.
+ * Some of them may become public in the future; others may stay private,
+ * change in an incompatible way, or even disappear.
  */
 
-#include <math.h>
+#ifndef __GRRLIB_PRIVATE_H__
+#define __GRRLIB_PRIVATE_H__
+
+#include <ogc/libversion.h>
 
 /**
- * A helper function for the YCbCr -> RGB conversion.
- * Clamps the given value into a range of 0 - 255 and thus preventing an overflow.
- * @param Value The value to clamp. Using float to increase the precision. This makes a full spectrum (0 - 255) possible.
- * @return Returns a clean, clamped unsigned char.
+ * Used for version checking.
+ * @param a Major version number.
+ * @param b Minor version number.
+ * @param c Revision version number.
  */
-INLINE
-u8  GRRLIB_ClampVar8 (f32 Value) {
-    Value = roundf(Value);
-    if      (Value < 0)    Value = 0;
-    else if (Value > 255)  Value = 255;
+#define GRRLIB_VERSION(a,b,c) ((a)*65536+(b)*256+(c))
 
-    return (u8)Value;
-}
+//------------------------------------------------------------------------------
+// GRRLIB_ttf.c - FreeType function for GRRLIB
+int GRRLIB_InitTTF();
+void GRRLIB_ExitTTF();
+
+#endif // __GRRLIB_PRIVATE_H__

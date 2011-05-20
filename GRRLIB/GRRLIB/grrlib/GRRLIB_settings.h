@@ -1,5 +1,5 @@
 /*------------------------------------------------------------------------------
-Copyright (c) 2010 The GRRLIB Team
+Copyright (c) 2011 The GRRLIB Team
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -20,9 +20,19 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ------------------------------------------------------------------------------*/
 
-/**
+/*
+ * @file GRRLIB_settings.h
  * Inline functions for configuring the GRRLIB settings.
  */
+
+#ifndef GX_BM_SUBTRACT
+    /**
+     * Blending type.
+     * libogc revision 4170 fixed a typographical error. GX_BM_SUBSTRACT was renamed GX_BM_SUBTRACT.
+     * But for previous versions this define is needed.
+     */
+    #define GX_BM_SUBTRACT      GX_BM_SUBSTRACT
+#endif
 
 extern  GRRLIB_drawSettings  GRRLIB_Settings;
 
@@ -44,7 +54,7 @@ void  GRRLIB_SetBlend (const GRRLIB_blendMode blendmode) {
             GX_SetBlendMode(GX_BM_BLEND, GX_BL_SRCCLR, GX_BL_DSTALPHA, GX_LO_CLEAR);
             break;
         case GRRLIB_BLEND_MULTI:
-            GX_SetBlendMode(GX_BM_SUBSTRACT, GX_BL_SRCALPHA, GX_BL_INVSRCALPHA, GX_LO_CLEAR);
+            GX_SetBlendMode(GX_BM_SUBTRACT, GX_BL_SRCALPHA, GX_BL_INVSRCALPHA, GX_LO_CLEAR);
             break;
         case GRRLIB_BLEND_INV:
             GX_SetBlendMode(GX_BM_BLEND, GX_BL_INVSRCCLR, GX_BL_INVSRCCLR, GX_LO_CLEAR);
