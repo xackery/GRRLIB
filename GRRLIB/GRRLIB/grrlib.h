@@ -172,11 +172,11 @@ typedef  struct GRRLIB_Font {
 typedef struct _GRRLIB_Material
 {
     char* name;             /**< Name of material. */
-    u32 diffuse[4];         /**< Diffuse component. */
-    u32 ambient[4];         /**< Ambient component. */
-    u32 specular[4];        /**< Specular component. */
-    u32 emmissive[4];       /**< Emmissive component. */
-    u32 shininess;          /**< Specular exponent. */
+    f32 diffuse[4];         /**< Diffuse component. */
+    f32 ambient[4];         /**< Ambient component. */
+    f32 specular[4];        /**< Specular component. */
+    f32 emmissive[4];       /**< Emmissive component. */
+    f32 shininess;          /**< Specular exponent. */
 } GRRLIB_Material;
 /**
  * Structure that defines a group in a model.

@@ -59,7 +59,7 @@ int main() {
         GRRLIB_SetLightDiff(1, (guVector){ 6, 0, zlight}, 20.0f, 1.0f, 0xFFFFFFFF);
         GRRLIB_SetLightDiff(2, (guVector){ 0,-6, zlight}, 20.0f, 1.0f, 0xFFFFFFFF);
 
-        Draw3dObj(model);
+        GRRLIB_Draw3dObj(model);
 
         GRRLIB_SetLightOff();
         GRRLIB_2dMode();

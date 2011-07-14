@@ -84,15 +84,92 @@ static GRRLIB_Group* GRRLIB_AddGroup(GRRLIB_Model* model, char* name) {
 }
 
 /**
+ * Find a material in the model.
+ * @param model Structure that defines the model in wich to find the material.
+ * @param name The name of the material.
+ * @return The position of the material, zero if not found.
+ */
+static u32 GRRLIB_FindMaterial(GRRLIB_Model* model, char* name) {
+    u32 i;
+
+    for (i = 0; i < model->nummaterials; i++) {
+        if (!strcmp(model->materials[i].name, name)) {
+            goto found;
+        }
+    }
+
+    i = 0;
+
+found:
+    return i;
+}
+
+/**
+ * Return the directory given a path.
+ * @param path Filesystem path.
+ * @return The directory given a path. The return value should be free'd.
+ */
+static char* GRRLIB_DirName(char* path) {
+    char* dir;
+    char* s;
+
+    dir = strdup(path);
+
+    s = strrchr(dir, '/');
+    if (s)
+        s[1] = '\0';
+    else
+        dir[0] = '\0';
+
+    return dir;
+}
+
+/**
  * Read a wavefront material library file.
  * @param model Properly initialized GRRLIB_Model structure.
+ * @param name The name of the material library.
  */
-static void GRRLIB_ReadMTL(GRRLIB_Model* model)
-{
+static void GRRLIB_ReadMTL(GRRLIB_Model* model, char* name) {
+    FILE* file;
+    char* dir;
+    char* filename;
+    char buf[128];
     u32 nummaterials, i;
+
+    dir = GRRLIB_DirName(model->pathname);
+    filename = (char*)malloc(sizeof(char) * (strlen(dir) + strlen(name) + 1));
+    strcpy(filename, dir);
+    strcat(filename, name);
+    free(dir);
+
+    // open the file
+    file = fopen(filename, "r");
+    if (!file) {
+        exit(1);
+    }
+    free(filename);
 
     // count the number of materials in the file
     nummaterials = 1;
+    while (fscanf(file, "%s", buf) != EOF) {
+        switch (buf[0]) {
+            case '#': // comment
+                // eat up rest of line
+                fgets(buf, sizeof(buf), file);
+                break;
+            case 'n': // newmtl
+                fgets(buf, sizeof(buf), file);
+                nummaterials++;
+                sscanf(buf, "%s %s", buf, buf);
+                break;
+            default:
+                // eat up rest of line
+                fgets(buf, sizeof(buf), file);
+                break;
+        }
+    }
+
+    rewind(file);
 
     // allocate memory for the materials
     model->materials = (GRRLIB_Material*)malloc(sizeof(GRRLIB_Material) * nummaterials);
@@ -119,6 +196,57 @@ static void GRRLIB_ReadMTL(GRRLIB_Model* model)
 
     // now, read in the data
     nummaterials = 0;
+
+    while (fscanf(file, "%s", buf) != EOF) {
+        switch (buf[0]) {
+        case '#': // comment
+            // eat up rest of line
+            fgets(buf, sizeof(buf), file);
+            break;
+        case 'n': // newmtl
+            fgets(buf, sizeof(buf), file);
+            sscanf(buf, "%s %s", buf, buf);
+            nummaterials++;
+            model->materials[nummaterials].name = strdup(buf);
+            break;
+        case 'N':
+            fscanf(file, "%f", &model->materials[nummaterials].shininess);
+            // wavefront shininess is from [0, 1000], so scale for OpenGL
+            model->materials[nummaterials].shininess /= 1000.0;
+            model->materials[nummaterials].shininess *= 128.0;
+            break;
+        case 'K':
+            switch (buf[1]) {
+            case 'd':
+                fscanf(file, "%f %f %f",
+                    &model->materials[nummaterials].diffuse[0],
+                    &model->materials[nummaterials].diffuse[1],
+                    &model->materials[nummaterials].diffuse[2]);
+                break;
+            case 's':
+                fscanf(file, "%f %f %f",
+                    &model->materials[nummaterials].specular[0],
+                    &model->materials[nummaterials].specular[1],
+                    &model->materials[nummaterials].specular[2]);
+                break;
+            case 'a':
+                fscanf(file, "%f %f %f",
+                    &model->materials[nummaterials].ambient[0],
+                    &model->materials[nummaterials].ambient[1],
+                    &model->materials[nummaterials].ambient[2]);
+                break;
+            default:
+                // eat up rest of line
+                fgets(buf, sizeof(buf), file);
+                break;
+            }
+            break;
+        default:
+            // eat up rest of line
+            fgets(buf, sizeof(buf), file);
+            break;
+        }
+    }
 }
 
 /**
@@ -166,6 +294,7 @@ static void GRRLIB_Normalize(f32* n) {
 
 /**
  * Returns the maximum of two floats.
+ * @return The maximum of two floats.
 */
 static f32 GRRLIB_Max(f32 a, f32 b) {
     if (a > b)
@@ -175,6 +304,7 @@ static f32 GRRLIB_Max(f32 a, f32 b) {
 
 /**
  * Returns the absolute value of a float.
+ * @return The absolute value of a float.
  */
 static f32 GRRLIB_Abs(f32 f)
 {
@@ -186,11 +316,10 @@ static f32 GRRLIB_Abs(f32 f)
 /**
  * Calculates the dimensions (width, height, depth) of a model.
  *
- * @param model Initialized GRRLIB_Model structure
+ * @param model Initialized GRRLIB_Model structure.
  * @param dimensions Array of 3 f32 (f32 dimensions[3])
  */
-static void GRRLIB_Dimensions(GRRLIB_Model* model, f32* dimensions)
-{
+static void GRRLIB_Dimensions(GRRLIB_Model* model, f32* dimensions) {
     u32 i;
     f32 maxx, minx, maxy, miny, maxz, minz;
 
@@ -228,6 +357,12 @@ static void GRRLIB_Dimensions(GRRLIB_Model* model, f32* dimensions)
     dimensions[Z] = GRRLIB_Abs(maxz) + GRRLIB_Abs(minz);
 }
 
+/**
+ * Second pass at a Wavefront OBJ file that gets all the data.
+ *
+ * @param model Properly initialized GRRLIB_Model structure.
+ * @param file File descriptor.
+ */
 static void GRRLIB_SecondPass(GRRLIB_Model* model, FILE* file) {
     u32    numvertices;     /* number of vertices in model */
     u32    numnormals;          /* number of normals in model */
@@ -285,7 +420,7 @@ static void GRRLIB_SecondPass(GRRLIB_Model* model, FILE* file) {
             case 'u':
                 fgets(buf, sizeof(buf), file);
                 sscanf(buf, "%s %s", buf, buf);
-                //group->material = material = _glmFindMaterial(model, buf);
+                group->material = material = GRRLIB_FindMaterial(model, buf);
             break;
             case 'g':               /* group */
                 /* eat up rest of line */
@@ -398,6 +533,13 @@ static void GRRLIB_SecondPass(GRRLIB_Model* model, FILE* file) {
     }
 }
 
+/**
+ * First pass at a Wavefront OBJ file that gets all the
+ * statistics of the model (such as #vertices, #normals, etc).
+ *
+ * @param model Properly initialized GRRLIB_Model structure.
+ * @param file File descriptor.
+ */
 static void GRRLIB_FirstPass(GRRLIB_Model* model, FILE* file) {
     u32    numvertices;     /* number of vertices in model */
     u32    numnormals;      /* number of normals in model */
@@ -439,7 +581,7 @@ static void GRRLIB_FirstPass(GRRLIB_Model* model, FILE* file) {
                 fgets(buf, sizeof(buf), file);
                 sscanf(buf, "%s %s", buf, buf);
                 model->mtllibname = strdup(buf);
-                //_glmReadMTL(model, buf);
+                GRRLIB_ReadMTL(model, buf);
                 break;
             case 'u':
                 fgets(buf, sizeof(buf), file);
@@ -519,6 +661,11 @@ static void GRRLIB_FirstPass(GRRLIB_Model* model, FILE* file) {
     }
 }
 
+/**
+ * Reads a model description from a Wavefront .OBJ file.
+ * @param filename Name of the file containing the Wavefront .OBJ format data.
+ * @return Returns a pointer to the created object which should be free'd with GRRLIB_DeleteObj.
+ */
 GRRLIB_Model* GRRLIB_ReadOBJ(char* filename) {
     GRRLIB_Model* model;
     FILE*     file;
@@ -606,16 +753,23 @@ void GRRLIB_DeleteObj(GRRLIB_Model* model) {
  * Draw a 3D object.
  * @param model Structure that defines the model to draw.
  */
-void Draw3dObj(GRRLIB_Model* model) {
+void GRRLIB_Draw3dObj(GRRLIB_Model* model) {
     GRRLIB_Group* group;
     int i;
 
-    if(model == NULL)
+    if(model == NULL) {
         return;
+    }
 
     group = model->groups;
     while (group) {
         GX_Begin(GX_TRIANGLES, GX_VTXFMT0, group->numtriangles*3);
+        
+        u32 Color = RGBA(model->materials[group->material].diffuse[0] * 0xFF,
+            model->materials[group->material].diffuse[1] * 0xFF,
+            model->materials[group->material].diffuse[2] * 0xFF,
+            0xFF);
+        
         for (i = 0; i < group->numtriangles; i++) {
             GX_Position3f32(model->vertices[3 * T(group->triangles[i]).vindices[0] + X],
                             model->vertices[3 * T(group->triangles[i]).vindices[0] + Y],
@@ -625,7 +779,7 @@ void Draw3dObj(GRRLIB_Model* model) {
                               model->normals[3 * T(group->triangles[i]).nindices[0] + Y],
                               model->normals[3 * T(group->triangles[i]).nindices[0] + Z]);
             }
-            GX_Color1u32(0xFFFFFFFF);
+            GX_Color1u32(Color);
             if(model->numtexcoords) {
                 GX_TexCoord2f32(model->texcoords[2*T(group->triangles[i]).tindices[0] + X],
                                 model->texcoords[2*T(group->triangles[i]).tindices[0] + Y]);
@@ -640,7 +794,7 @@ void Draw3dObj(GRRLIB_Model* model) {
                               model->normals[3 * T(group->triangles[i]).nindices[1] + Y],
                               model->normals[3 * T(group->triangles[i]).nindices[1] + Z]);
             }
-            GX_Color1u32(0xFFFFFFFF);
+            GX_Color1u32(Color);
             if(model->numtexcoords) {
                 GX_TexCoord2f32(model->texcoords[2*T(group->triangles[i]).tindices[1] + X],
                                 model->texcoords[2*T(group->triangles[i]).tindices[1] + Y]);
@@ -655,7 +809,7 @@ void Draw3dObj(GRRLIB_Model* model) {
                               model->normals[3 * T(group->triangles[i]).nindices[2] + Y],
                               model->normals[3 * T(group->triangles[i]).nindices[2] + Z]);
             }
-            GX_Color1u32(0xFFFFFFFF);
+            GX_Color1u32(Color);
             if(model->numtexcoords) {
                 GX_TexCoord2f32(model->texcoords[2*T(group->triangles[i]).tindices[2] + X],
                                 model->texcoords[2*T(group->triangles[i]).tindices[2] + Y]);
@@ -969,8 +1123,8 @@ void GRRLIB_SpheremapTexture(GRRLIB_Model* model) {
                 theta = asin(y / r) + (M_PI / 2.0);
         }
 
-        model->texcoords[2 * i + 0] = theta / 3.14159265;
-        model->texcoords[2 * i + 1] = phi / 3.14159265;
+        model->texcoords[2 * i + 0] = theta / M_PI;
+        model->texcoords[2 * i + 1] = phi / M_PI;
     }
 
     // go through and put texcoord indices in all the triangles
@@ -1037,7 +1191,7 @@ static void GRRLIB_FirstPassMem(GRRLIB_Model* model, char *buffer, u32 size) {
                 buffer = strchr(buffer, '\n') + 1;
                 sscanf(buf, "%s %s", buf, buf);
                 model->mtllibname = strdup(buf);
-                //_glmReadMTL(model, buf);
+                //GRRLIB_ReadMTL(model, buf);
                 break;
             case 'u':
                 buffer = strchr(buffer, '\n') + 1;
@@ -1141,7 +1295,7 @@ GRRLIB_Model* GRRLIB_ReadOBJMem(const char *buffer, u32 size) {
     model->numtriangles  = 0;
     model->triangles     = NULL;
     model->nummaterials  = 0;
-    //model->materials     = NULL;
+    model->materials     = NULL;
     model->numgroups     = 0;
     model->groups        = NULL;
     model->position.x    = 0.0;

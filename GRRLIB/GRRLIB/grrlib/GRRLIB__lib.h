@@ -181,7 +181,7 @@ unsigned int GRRLIB_WidthTTFW(GRRLIB_ttfFont *myFont, const wchar_t *, unsigned 
 
 //------------------------------------------------------------------------------
 // GRRLIB_3Dobj.c - 3D obj file functions for GRRLIB
-void Draw3dObj(GRRLIB_Model* model);
+void GRRLIB_Draw3dObj(GRRLIB_Model* model);
 GRRLIB_Model* GRRLIB_ReadOBJ(char* filename);
 GRRLIB_Model* GRRLIB_ReadOBJMem(const char *buffer, u32 size);
 void GRRLIB_DeleteObj(GRRLIB_Model* model);
