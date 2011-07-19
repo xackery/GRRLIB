@@ -135,12 +135,12 @@ static void GRRLIB_ReadMTL(GRRLIB_Model* model, char* name) {
     char* filename;
     char buf[128];
     u32 nummaterials, i;
+    f32 Red, Blue, Green;
 
     dir = GRRLIB_DirName(model->pathname);
     filename = (char*)malloc(sizeof(char) * (strlen(dir) + strlen(name) + 1));
     strcpy(filename, dir);
     strcat(filename, name);
-    free(dir);
 
     // open the file
     file = fopen(filename, "r");
@@ -179,18 +179,18 @@ static void GRRLIB_ReadMTL(GRRLIB_Model* model, char* name) {
     for (i = 0; i < nummaterials; i++) {
         model->materials[i].name = NULL;
         model->materials[i].shininess = 0;
-        model->materials[i].diffuse[0] = 0.8;
-        model->materials[i].diffuse[1] = 0.8;
-        model->materials[i].diffuse[2] = 0.8;
-        model->materials[i].diffuse[3] = 1.0;
-        model->materials[i].ambient[0] = 0.2;
-        model->materials[i].ambient[1] = 0.2;
-        model->materials[i].ambient[2] = 0.2;
-        model->materials[i].ambient[3] = 1.0;
-        model->materials[i].specular[0] = 0.0;
-        model->materials[i].specular[1] = 0.0;
-        model->materials[i].specular[2] = 0.0;
-        model->materials[i].specular[3] = 1.0;
+        model->materials[i].diffuse[0] = 204;
+        model->materials[i].diffuse[1] = 204;
+        model->materials[i].diffuse[2] = 204;
+        model->materials[i].ambient[0] = 51;
+        model->materials[i].ambient[1] = 51;
+        model->materials[i].ambient[2] = 51;
+        model->materials[i].specular[0] = 0;
+        model->materials[i].specular[1] = 0;
+        model->materials[i].specular[2] = 0;
+        model->materials[i].diffusetex = NULL;
+        model->materials[i].ambienttex = NULL;
+        model->materials[i].speculartex = NULL;
     }
     model->materials[0].name = strdup("default");
 
@@ -215,25 +215,66 @@ static void GRRLIB_ReadMTL(GRRLIB_Model* model, char* name) {
             model->materials[nummaterials].shininess /= 1000.0;
             model->materials[nummaterials].shininess *= 128.0;
             break;
+        case 'm': // texture map
+            switch (buf[5]) {
+            case 'd': // the diffuse texture map
+                fgets(buf, sizeof(buf), file);
+                sscanf(buf, "%s %s", buf, buf); // Get file name
+                if(buf[0] != ' ') {
+                    filename = (char*)malloc(sizeof(char) * (strlen(dir) + strlen(buf) + 1));
+                    strcpy(filename, dir);
+                    strcat(filename, buf);
+                    model->materials[nummaterials].diffusetex = GRRLIB_LoadTextureFromFile(filename);
+                    free(filename);
+                }
+                break;
+            case 's': // the specular texture map
+                fgets(buf, sizeof(buf), file);
+                sscanf(buf, "%s %s", buf, buf); // Get file name
+                if(buf[0] != ' ') {
+                    filename = (char*)malloc(sizeof(char) * (strlen(dir) + strlen(buf) + 1));
+                    strcpy(filename, dir);
+                    strcat(filename, buf);
+                    model->materials[nummaterials].speculartex = GRRLIB_LoadTextureFromFile(filename);
+                    free(filename);
+                }
+                break;
+            case 'a': // the ambient texture map
+                fgets(buf, sizeof(buf), file);
+                sscanf(buf, "%s %s", buf, buf); // Get file name
+                if(buf[0] != ' ') {
+                    filename = (char*)malloc(sizeof(char) * (strlen(dir) + strlen(buf) + 1));
+                    strcpy(filename, dir);
+                    strcat(filename, buf);
+                    model->materials[nummaterials].ambienttex = GRRLIB_LoadTextureFromFile(filename);
+                    free(filename);
+                }
+                break;
+            default:
+                // eat up rest of line
+                fgets(buf, sizeof(buf), file);
+                break;
+            }
+            break;
         case 'K':
             switch (buf[1]) {
-            case 'd':
-                fscanf(file, "%f %f %f",
-                    &model->materials[nummaterials].diffuse[0],
-                    &model->materials[nummaterials].diffuse[1],
-                    &model->materials[nummaterials].diffuse[2]);
+            case 'd': // diffuse color of the material
+                fscanf(file, "%f %f %f", &Red, &Green, &Blue);
+                model->materials[nummaterials].diffuse[0] = (u8)(255.0f * Red + 0.5f);
+                model->materials[nummaterials].diffuse[1] = (u8)(255.0f * Green + 0.5f);
+                model->materials[nummaterials].diffuse[2] = (u8)(255.0f * Blue + 0.5f);
                 break;
-            case 's':
-                fscanf(file, "%f %f %f",
-                    &model->materials[nummaterials].specular[0],
-                    &model->materials[nummaterials].specular[1],
-                    &model->materials[nummaterials].specular[2]);
+            case 's': // specular color of the material
+                fscanf(file, "%f %f %f", &Red, &Green, &Blue);
+                model->materials[nummaterials].specular[0] = (u8)(255.0f * Red + 0.5f);
+                model->materials[nummaterials].specular[1] = (u8)(255.0f * Green + 0.5f);
+                model->materials[nummaterials].specular[2] = (u8)(255.0f * Blue + 0.5f);
                 break;
-            case 'a':
-                fscanf(file, "%f %f %f",
-                    &model->materials[nummaterials].ambient[0],
-                    &model->materials[nummaterials].ambient[1],
-                    &model->materials[nummaterials].ambient[2]);
+            case 'a': // ambient color of the material
+                fscanf(file, "%f %f %f", &Red, &Green, &Blue);
+                model->materials[nummaterials].ambient[0] = (u8)(255.0f * Red + 0.5f);
+                model->materials[nummaterials].ambient[1] = (u8)(255.0f * Green + 0.5f);
+                model->materials[nummaterials].ambient[2] = (u8)(255.0f * Blue + 0.5f);
                 break;
             default:
                 // eat up rest of line
@@ -247,6 +288,7 @@ static void GRRLIB_ReadMTL(GRRLIB_Model* model, char* name) {
             break;
         }
     }
+    free(dir);
 }
 
 /**
@@ -734,8 +776,12 @@ void GRRLIB_DeleteObj(GRRLIB_Model* model) {
     if (model->facetnorms) free(model->facetnorms);
     if (model->triangles)  free(model->triangles);
     if (model->materials) {
-        for (i = 0; i < model->nummaterials; i++)
+        for (i = 0; i < model->nummaterials; i++) {
             free(model->materials[i].name);
+            GRRLIB_FreeTexture(model->materials[i].diffusetex);
+            GRRLIB_FreeTexture(model->materials[i].ambienttex);
+            GRRLIB_FreeTexture(model->materials[i].speculartex);
+        }
     }
     free(model->materials);
     while(model->groups) {
@@ -755,6 +801,7 @@ void GRRLIB_DeleteObj(GRRLIB_Model* model) {
  */
 void GRRLIB_Draw3dObj(GRRLIB_Model* model) {
     GRRLIB_Group* group;
+    GRRLIB_texImg* tex;
     int i;
 
     if(model == NULL) {
@@ -763,13 +810,38 @@ void GRRLIB_Draw3dObj(GRRLIB_Model* model) {
 
     group = model->groups;
     while (group) {
-        GX_Begin(GX_TRIANGLES, GX_VTXFMT0, group->numtriangles*3);
-        
-        u32 Color = RGBA(model->materials[group->material].diffuse[0] * 0xFF,
-            model->materials[group->material].diffuse[1] * 0xFF,
-            model->materials[group->material].diffuse[2] * 0xFF,
+        u32 Color = RGBA(model->materials[group->material].diffuse[0],
+            model->materials[group->material].diffuse[1],
+            model->materials[group->material].diffuse[2],
             0xFF);
+
+        tex = model->materials[group->material].diffusetex;
+
+        GX_ClearVtxDesc();
         
+        GX_SetVtxDesc(GX_VA_POS, GX_DIRECT);
+        if(model->numnormals)
+            GX_SetVtxDesc(GX_VA_NRM, GX_DIRECT);
+        GX_SetVtxDesc(GX_VA_CLR0, GX_DIRECT);
+        if(model->numtexcoords && tex)
+            GX_SetVtxDesc(GX_VA_TEX0, GX_DIRECT);
+        
+        GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
+        if(model->numnormals)
+            GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_NRM, GX_NRM_XYZ, GX_F32, 0);
+        GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_CLR0, GX_CLR_RGBA, GX_RGBA8, 0);
+        if(model->numtexcoords && tex)
+            GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0, GX_TEX_ST, GX_F32, 0);
+        
+        if(model->numtexcoords && tex) {
+            GX_SetTevOp(GX_TEVSTAGE0, GX_MODULATE);
+            GRRLIB_SetTexture(tex, 0);
+        }
+        else {
+            GX_SetTevOp(GX_TEVSTAGE0, GX_PASSCLR);
+        }
+
+        GX_Begin(GX_TRIANGLES, GX_VTXFMT0, group->numtriangles*3);
         for (i = 0; i < group->numtriangles; i++) {
             GX_Position3f32(model->vertices[3 * T(group->triangles[i]).vindices[0] + X],
                             model->vertices[3 * T(group->triangles[i]).vindices[0] + Y],
@@ -780,7 +852,7 @@ void GRRLIB_Draw3dObj(GRRLIB_Model* model) {
                               model->normals[3 * T(group->triangles[i]).nindices[0] + Z]);
             }
             GX_Color1u32(Color);
-            if(model->numtexcoords) {
+            if(model->numtexcoords && tex) {
                 GX_TexCoord2f32(model->texcoords[2*T(group->triangles[i]).tindices[0] + X],
                                 model->texcoords[2*T(group->triangles[i]).tindices[0] + Y]);
             }
@@ -795,7 +867,7 @@ void GRRLIB_Draw3dObj(GRRLIB_Model* model) {
                               model->normals[3 * T(group->triangles[i]).nindices[1] + Z]);
             }
             GX_Color1u32(Color);
-            if(model->numtexcoords) {
+            if(model->numtexcoords && tex) {
                 GX_TexCoord2f32(model->texcoords[2*T(group->triangles[i]).tindices[1] + X],
                                 model->texcoords[2*T(group->triangles[i]).tindices[1] + Y]);
             }
@@ -810,7 +882,7 @@ void GRRLIB_Draw3dObj(GRRLIB_Model* model) {
                               model->normals[3 * T(group->triangles[i]).nindices[2] + Z]);
             }
             GX_Color1u32(Color);
-            if(model->numtexcoords) {
+            if(model->numtexcoords && tex) {
                 GX_TexCoord2f32(model->texcoords[2*T(group->triangles[i]).tindices[2] + X],
                                 model->texcoords[2*T(group->triangles[i]).tindices[2] + Y]);
             }
