@@ -189,6 +189,7 @@ void GRRLIB_VertexNormals(GRRLIB_Model* model, f32 angle);
 void GRRLIB_FacetNormals(GRRLIB_Model* model);
 void GRRLIB_LinearTexture(GRRLIB_Model* model);
 void GRRLIB_SpheremapTexture(GRRLIB_Model* model);
+u32 GRRLIB_FindMaterial(GRRLIB_Model* model, char* name);
 
 #endif // __GRRLIB_FNLIB_H__
 /** @} */ // end of group

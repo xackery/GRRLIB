@@ -170,14 +170,15 @@ typedef  struct GRRLIB_Font {
  * Structure that defines a material in a model. 
  */
 typedef struct _GRRLIB_Material {
-    char* name;                 /**< Name of material. */
-    u8 diffuse[3];              /**< Diffuse component. */
-    u8 ambient[3];              /**< Ambient component. */
-    u8 specular[3];             /**< Specular component. */
-    GRRLIB_texImg* diffusetex;  /**< Diffuse texture map. */
-    GRRLIB_texImg* ambienttex;  /**< Ambient texture map. */
-    GRRLIB_texImg* speculartex; /**< Specular texture map. */
-    f32 shininess;              /**< Specular exponent. */
+    char* name;                 /**< Name of material (newmtl).*/
+    u8 diffuse[3];              /**< Diffuse component (Kd). */
+    u8 ambient[3];              /**< Ambient component (Ka). */
+    u8 specular[3];             /**< Specular component (Ks). */
+    u8 alpha;                   /**< Transparency of the material (d or Tr). */
+    GRRLIB_texImg* diffusetex;  /**< Diffuse texture map (map_Kd). */
+    GRRLIB_texImg* ambienttex;  /**< Ambient texture map (map_Ka). */
+    GRRLIB_texImg* speculartex; /**< Specular texture map (map_Ks). */
+    f32 shininess;              /**< Specular exponent (Ns).*/
 } GRRLIB_Material;
 /**
  * Structure that defines a group in a model.

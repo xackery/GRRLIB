@@ -21,7 +21,7 @@ int main() {
     const char strCtl1[]   = "DPAD TO ROTATE MODEL";
     const char strCtl2[]   = "PLUS/MINUS TO ZOOM MODEL";
     const char strCredit[] = "BY NONAMENO/CRAYON FROM GRRLIB TEAM";
-    
+
     GRRLIB_Init();
     WPAD_Init();
 

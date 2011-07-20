@@ -89,8 +89,11 @@ static GRRLIB_Group* GRRLIB_AddGroup(GRRLIB_Model* model, char* name) {
  * @param name The name of the material.
  * @return The position of the material, zero if not found.
  */
-static u32 GRRLIB_FindMaterial(GRRLIB_Model* model, char* name) {
+u32 GRRLIB_FindMaterial(GRRLIB_Model* model, char* name) {
     u32 i;
+
+    if(model == NULL || name == NULL)
+        return 0;
 
     for (i = 0; i < model->nummaterials; i++) {
         if (!strcmp(model->materials[i].name, name)) {
@@ -188,6 +191,7 @@ static void GRRLIB_ReadMTL(GRRLIB_Model* model, char* name) {
         model->materials[i].specular[0] = 0;
         model->materials[i].specular[1] = 0;
         model->materials[i].specular[2] = 0;
+        model->materials[i].alpha = 255;
         model->materials[i].diffusetex = NULL;
         model->materials[i].ambienttex = NULL;
         model->materials[i].speculartex = NULL;
@@ -761,6 +765,17 @@ GRRLIB_Model* GRRLIB_ReadOBJ(char* filename) {
 }
 
 /**
+ * Deletes a GRRLIB_Material structure.
+ * @param material Initialized GRRLIB_Material structure.
+ */
+static void GRRLIB_DeleteMaterial(GRRLIB_Material* material) {
+    free(material->name);
+    GRRLIB_FreeTexture(material->diffusetex);
+    GRRLIB_FreeTexture(material->ambienttex);
+    GRRLIB_FreeTexture(material->speculartex);
+}
+
+/**
  * Deletes a GRRLIB_Model structure.
  * @param model Initialized GRRLIB_Model structure.
  */
@@ -777,10 +792,7 @@ void GRRLIB_DeleteObj(GRRLIB_Model* model) {
     if (model->triangles)  free(model->triangles);
     if (model->materials) {
         for (i = 0; i < model->nummaterials; i++) {
-            free(model->materials[i].name);
-            GRRLIB_FreeTexture(model->materials[i].diffusetex);
-            GRRLIB_FreeTexture(model->materials[i].ambienttex);
-            GRRLIB_FreeTexture(model->materials[i].speculartex);
+            GRRLIB_DeleteMaterial(&model->materials[i]);
         }
     }
     free(model->materials);
@@ -818,21 +830,21 @@ void GRRLIB_Draw3dObj(GRRLIB_Model* model) {
         tex = model->materials[group->material].diffusetex;
 
         GX_ClearVtxDesc();
-        
+
         GX_SetVtxDesc(GX_VA_POS, GX_DIRECT);
         if(model->numnormals)
             GX_SetVtxDesc(GX_VA_NRM, GX_DIRECT);
         GX_SetVtxDesc(GX_VA_CLR0, GX_DIRECT);
         if(model->numtexcoords && tex)
             GX_SetVtxDesc(GX_VA_TEX0, GX_DIRECT);
-        
+
         GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
         if(model->numnormals)
             GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_NRM, GX_NRM_XYZ, GX_F32, 0);
         GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_CLR0, GX_CLR_RGBA, GX_RGBA8, 0);
         if(model->numtexcoords && tex)
             GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0, GX_TEX_ST, GX_F32, 0);
-        
+
         if(model->numtexcoords && tex) {
             GX_SetTevOp(GX_TEVSTAGE0, GX_MODULATE);
             GRRLIB_SetTexture(tex, 0);
@@ -1218,7 +1230,7 @@ void GRRLIB_SpheremapTexture(GRRLIB_Model* model) {
 
 
 
-static void GRRLIB_FirstPassMem(GRRLIB_Model* model, char *buffer, u32 size) {
+static void GRRLIB_FirstPassMem(GRRLIB_Model* model, const char *buffer, u32 size) {
     u32    numvertices;     /* number of vertices in model */
     u32    numnormals;      /* number of normals in model */
     u32    numtexcoords;        /* number of texcoords in model */
