@@ -1,5 +1,5 @@
 /*------------------------------------------------------------------------------
-Copyright (c) 2011 The GRRLIB Team
+Copyright (c) 2012 The GRRLIB Team
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -463,7 +463,7 @@ static void GRRLIB_SecondPass(GRRLIB_Model* model, FILE* file) {
                     break;
                 }
             break;
-            case 'u':
+            case 'u':               /* usemtl */
                 fgets(buf, sizeof(buf), file);
                 sscanf(buf, "%s %s", buf, buf);
                 group->material = material = GRRLIB_FindMaterial(model, buf);
@@ -629,7 +629,7 @@ static void GRRLIB_FirstPass(GRRLIB_Model* model, FILE* file) {
                 model->mtllibname = strdup(buf);
                 GRRLIB_ReadMTL(model, buf);
                 break;
-            case 'u':
+            case 'u':               /* usemtl */
                 fgets(buf, sizeof(buf), file);
                 break;
             case 'g':               /* group */
