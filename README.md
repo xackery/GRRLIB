@@ -1,4 +1,4 @@
-GRRLIB for Nintendo Gamecube (Wii not supported)
+GRRLIB for Nintendo Gamecube
 ======
 
 
@@ -15,7 +15,7 @@ Table of Contents
  - ...How do I get it to a useable state?
 - [Using GRRLIB](#using-grrlib)
  - ...What essentials do I need to know to get going?
-- [Installing GRRLIB for Gamecube next to GRRLIB for Wii](#upgrading-to-v410-from-previous-versions-of-grrlib)
+- [Gamecube and Wii incompatabilities](#upgrading-to-v410-from-previous-versions-of-grrlib)
  - ...I upgraded and now my programs won't compile properly!?
 - [Using GitHub](#using-github)
  - ...What is this Git thing that the L337 devs keep talking about?
@@ -54,13 +54,13 @@ libgrrlib          <- 2D/3D graphics library
 ```
 
 
-Developing for the Wii
+Developing for the Gamecube
 ----------------------
 
 Do not progress until you have installed and configured devkitPro.  Guides are
 and assistance are available at http://forums.devkitpro.org
 
-If you have just performed a clean (re)install on your Windows PC, be sure to
+If you have just performed a clean (re)install on your Computer, be sure to
 reboot before you continue.
 
 
@@ -74,13 +74,14 @@ The Git repository is located at: https://github.com/GRRLIB/GRRLIB
 There is a simple guide to "Using GitHub" later in this document.
 
 This document will presume that you have downloaded "the latest Git master
-version" to a directory called  C:\grr
+version" to a folder called grr, located on your desktop.
+
+In order to add Gamecube support to GRRLIB, you'll also need to use the latest Git master version of GRRLIB for Gamecube. You're currently at the Gamecube branch's Git.
 
 Installing GRRLIB
 -----------------
 
-This guide is for Windows.  If you are using Linux, I am going to presume you
-are smart enough to convert these instructions.
+This guide has been updated for Linux, Mac OS X, and Windows support.
 
 GRRLIB      is supplied as source code
 libjpeg     is supplied as source code
@@ -91,70 +92,41 @@ libfreetype is supplied as source code
 libfat      is supplied with devkitpro (Ie. preinstalled)
 
 The easy way is to install GRRLIB and all the required libraries in a single
-command:
+command. 
+On Windows, open cmd, by typing cmd in the windows search box and launching the first result. 
+On Linux, launch your favorite terminal app. 
+On Mac OS X, you'll find the Terminal app in /Applications/Utilities/
+
+On Windows type the following, and press enter at the end of each line:
 ```
-  c:
-  cd \grr\GRRLIB
+  cd Desktop\grr\GRRLIB
   make clean all install
 ```
 
-This process may take some time depending on the speed of your PC.
+On Linux/Mac OS X:
+```
+  cd ~/Desktop/grr/GRRLIB
+  sudo make clean all install
+```
+
+This process may take some time depending on the speed of your Computer.
 
 If you used the method above the following steps are not required, GRRLIB is
 installed and you are ready to start developing Wii homebrew games.
 
 If you want, you could install the libz, libpng, libpngu, libjpeg and
-libfreetype libraries in a single command:
+libfreetype libraries in a single command.
+On Windows:
 ```
   c:
   cd \grr\GRRLIB\lib 
   make clean all install
 ```
-
-Each library could also be installed individually:
-
-To install libz
+On Linux/Mac OS X:
 ```
-  c:
-  cd \grr\GRRLIB\lib\zlib
-  make clean all install
+  cd ~/Desktop/grr/GRRLIB/lib 
+  sudo make clean all install
 ```
-
-To install libpng
-```
-  c:
-  cd \grr\GRRLIB\lib\png
-  make clean all install
-```
-
-To install libpngu
-```
-  c:
-  cd \grr\GRRLIB\lib\pngu
-  make clean all install
-```
-
-To install libjpeg
-```
-  c:
-  cd \grr\GRRLIB\lib\jpeg
-  make clean all install
-```
-
-To install libfreetype
-```
-  c:
-  cd \grr\GRRLIB\lib\freetype
-  make clean all install
-```
-
-To install libgrrlib:
-```
-  c:
-  cd \grr\GRRLIB\GRRLIB
-  make clean all install
-```
-
 
 Using GRRLIB
 ------------
@@ -176,51 +148,15 @@ other libraries in the middle of the list, you may need to add others to the
 start, or even the end - but do _not_ change the order of the libraries shown
 here.
 
-You do NOT need to place /anything/ in your application directory.
+You do NOT need to place /anything/ in the folder there your project source code sits
 
 If you would like to see a working example of this, you can look at the example
-found in: C:\grr\examples\template\source
+found in: ~/Desktop/grr/examples/template/source
 
 
-Upgrading to v4.1.0 From Previous Versions of GRRLIB
+Gamecube and Wii Incompatability
 ----------------------------------------------------
-
-Older versions of GRRLIB, required a line such as:
-```c
-  #include "../../../GRRLIB/GRRLIB/GRRLIB.h"
-```
-...to be placed at the top of each C file which uses GRRLB.
-Because GRRLIB is now installed as a system library, this must be replaced with:
-```c
-  #include <grrlib.h>
-```
-
-Older versions of GRRLIB required the 'GRRLIB.h' and 'GRRLIB.c" files to be
-present in every project which uses GRRLIB.
-Because GRRLIB is now installed as a system library, these files are no longer
-required and must be erased.
-*WARNING* Be careful if you have edited (either of) these files.
-
-Older versions of GRRLIB "passed 'structs'" and therefore Textured Images were
-defined with:
-```c
-  GRRLIB_texImg  tex1, tex2;
-```
-Because GRRLIB now "passes 'pointers'" these definitions should be changed to:
-```c
-  GRRLIB_texImg  *tex1, *tex2;
-```
-
-With older versions of GRRLIB if the programmer (you) required access to the
-mode and frame information, you were required to add one or more of the
-following three lines:
-```c
-  extern GXRModeObj  *rmode;
-  extern void        *xfb[2];
-  extern u32         fb;
-```
-Because GRRLIB now does this for you automatically, these lines must be removed
-from your code.
+Due to this modified version of GRRLIB being patched throughout in order to support the gamecube, having both the gamecube and wii version installed on the same computer has not been tested and is not supported. The external libraries, such as freetype, jpeg, png, etc that come with this version of GRRLIB are built with all of the Wii options stripped out, and as such they may or may not be functional on Wii.
 
 
 Using GitHub
