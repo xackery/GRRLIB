@@ -1,4 +1,4 @@
-GRRLIB
+GRRLIB for Nintendo Gamecube (Wii not supported)
 ======
 
 
@@ -7,7 +7,7 @@ Table of Contents
 
 - [Introduction](#introduction)
  - ...What is it?
-- [Developing for the Wii](#developing-for-the-wii)
+- [Developing for the Gamecube](#developing-for-the-wii)
  - ...How do I even start?
 - [Downloading GRRLIB](#downloading-grrlib)
  - ...Where do I get it from?
@@ -15,7 +15,7 @@ Table of Contents
  - ...How do I get it to a useable state?
 - [Using GRRLIB](#using-grrlib)
  - ...What essentials do I need to know to get going?
-- [Upgrading to v4.1.0 From Previous Versions of GRRLIB](#upgrading-to-v410-from-previous-versions-of-grrlib)
+- [Installing GRRLIB for Gamecube next to GRRLIB for Wii](#upgrading-to-v410-from-previous-versions-of-grrlib)
  - ...I upgraded and now my programs won't compile properly!?
 - [Using GitHub](#using-github)
  - ...What is this Git thing that the L337 devs keep talking about?
