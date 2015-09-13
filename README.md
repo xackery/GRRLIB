@@ -15,7 +15,7 @@ Table of Contents
  - ...How do I get it to a useable state?
 - [Using GRRLIB](#using-grrlib)
  - ...What essentials do I need to know to get going?
-- [Gamecube and Wii incompatability](#Gamecube-and-Wii-Incompatability)
+- [Gamecube and Wii incompatability](#gamecube-and-wii-incompatability)
  - ...I upgraded and now my programs won't compile properly!?
 - [Using GitHub](#using-github)
  - ...What is this Git thing that the L337 devs keep talking about?
