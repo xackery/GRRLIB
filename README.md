@@ -64,21 +64,17 @@ If you have just performed a clean (re)install on your Computer, be sure to
 reboot before you continue.
 
 
-Downloading GRRLIB
+Downloading GRRLIB for Gamecube
 ------------------
 
-You are invited to use "the latest Git master version" of GRRLIB at all times.
-
-The Git repository is located at: https://github.com/GRRLIB/GRRLIB
-
-There is a simple guide to "Using GitHub" later in this document.
+You are invited to use "the latest Git master version" of this fork at all times.
 
 This document will presume that you have downloaded "the latest Git master
 version" to a folder called grr, located on your desktop.
 
-In order to add Gamecube support to GRRLIB, you'll also need to use the latest Git master version of GRRLIB for Gamecube. You're currently at the Gamecube branch's Git.
+In order to add Gamecube support to GRRLIB, you'll need to use the latest Git master version of GRRLIB for Gamecube. Don't worry, you're there right now.
 
-Installing GRRLIB
+Installing GRRLIB for Gamecube
 -----------------
 
 This guide has been updated for Linux, Mac OS X, and Windows support.
@@ -118,8 +114,7 @@ If you want, you could install the libz, libpng, libpngu, libjpeg and
 libfreetype libraries in a single command.
 On Windows:
 ```
-  c:
-  cd \grr\GRRLIB\lib 
+  cd Desktop\grr\GRRLIB\lib 
   make clean all install
 ```
 On Linux/Mac OS X:
