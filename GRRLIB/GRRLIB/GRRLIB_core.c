@@ -1,5 +1,5 @@
 /*------------------------------------------------------------------------------
-Copyright (c) 2015 The GRRLIB Team
+Copyright (c) 2012 The GRRLIB Team
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -23,7 +23,6 @@ THE SOFTWARE.
 #include <stdlib.h>
 #include <malloc.h>
 #include <string.h>
-#include <ogc/conf.h>
 #include <fat.h>
 
 #define __GRRLIB_CORE__
@@ -73,13 +72,13 @@ int  GRRLIB_Init (void) {
     }
 
     // 16:9 and 4:3 Screen Adjustment
-    if (CONF_GetAspectRatio() == CONF_ASPECT_16_9) {
-        rmode->viWidth = 678;
-        rmode->viXOrigin = (VI_MAX_WIDTH_NTSC - 678)/2;  // This probably needs to consider PAL
-    } else {    // 4:3
+    // if (CONF_GetAspectRatio() == CONF_ASPECT_16_9) {
+//         rmode->viWidth = 678;
+//         rmode->viXOrigin = (VI_MAX_WIDTH_NTSC - 678)/2;  // This probably needs to consider PAL
+//     } else {    // 4:3
         rmode->viWidth = 672;
         rmode->viXOrigin = (VI_MAX_WIDTH_NTSC - 672)/2;
-    }
+    // }
 
     // --
     VIDEO_Configure(rmode);

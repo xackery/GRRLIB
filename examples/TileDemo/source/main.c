@@ -9,7 +9,7 @@
 
 #include <stdlib.h>
 #include <math.h>
-#include <wiiuse/wpad.h>
+#include <ogc/pad.h>
 
 #include "gfx/tile1.h"
 #include "gfx/perso.h"
@@ -139,7 +139,7 @@ int main() {
 
     GRRLIB_Init();
     GRRLIB_Settings.antialias = false;
-    WPAD_Init();
+    PAD_Init();
     GRRLIB_ClipDrawing(0,0,rmode->fbWidth,rmode->efbHeight);
     GRRLIB_texImg *tex_tile1 = GRRLIB_LoadTexture(tile1);
     GRRLIB_InitTileSet(tex_tile1, TileMap1Width, TileMap1Height, 0);
@@ -150,14 +150,14 @@ int main() {
     GRRLIB_InitTileSet(tex_nonameno, 32, 32, 0);
 
     while(1) {
-        WPAD_ScanPads();
-        if (WPAD_ButtonsDown(0) & WPAD_BUTTON_HOME)  break;
+        PAD_ScanPads();
+        if (PAD_ButtonsDown(0) & PAD_BUTTON_START)  break;
 
         if((dirx==0) && (diry==0)) {
-            if (WPAD_ButtonsHeld(0) & WPAD_BUTTON_LEFT) { diry=-4; idperso=15;}
-            else if (WPAD_ButtonsHeld(0) & WPAD_BUTTON_RIGHT) { diry=4; idperso=15;}
-            else if (WPAD_ButtonsHeld(0) & WPAD_BUTTON_DOWN) { dirx=-4 ; idperso=1;}
-            else if (WPAD_ButtonsHeld(0) & WPAD_BUTTON_UP) { dirx=4 ; idperso=8;}
+            if (PAD_ButtonsHeld(0) & PAD_BUTTON_LEFT) { diry=-4; idperso=15;}
+            else if (PAD_ButtonsHeld(0) & PAD_BUTTON_RIGHT) { diry=4; idperso=15;}
+            else if (PAD_ButtonsHeld(0) & PAD_BUTTON_DOWN) { dirx=-4 ; idperso=1;}
+            else if (PAD_ButtonsHeld(0) & PAD_BUTTON_UP) { dirx=4 ; idperso=8;}
         }
 
         if((dirx==0) && (diry==0)) {

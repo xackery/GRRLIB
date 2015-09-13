@@ -6,7 +6,7 @@
 
 #include <stdlib.h>
 #include <math.h>
-#include <wiiuse/wpad.h>
+#include <ogc/pad.h>
 
 
 int main() {
@@ -25,7 +25,7 @@ int main() {
     GRRLIB_Init();
 
     // Initialise the Wiimotes
-    WPAD_Init();
+    PAD_Init();
 
 
     adc1=0;
@@ -67,8 +67,8 @@ int main() {
 
     while(1) {
         GRRLIB_FillScreen(0x000000FF);
-        WPAD_ScanPads();  // Scan the Wiimotes
-        if (WPAD_ButtonsDown(0) & WPAD_BUTTON_HOME)  break;
+        PAD_ScanPads();  // Scan the Wiimotes
+        if (PAD_ButtonsDown(0) & PAD_BUTTON_START)  break;
         old1=siny1; old2=siny2; old3=siny3; old4=siny4;
 
 

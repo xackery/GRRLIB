@@ -8,7 +8,7 @@
 #include <grrlib.h>
 
 #include <stdlib.h>
-#include <wiiuse/wpad.h>
+#include <ogc/pad.h>
 #include <math.h>
 
 // Include Graphics
@@ -23,7 +23,6 @@ static void ExitGame();
 
 // General Variables
 extern GXRModeObj *rmode;
-ir_t P1Mote;
 
 // Prepare Graphics
 GRRLIB_texImg *GFX_Background;
@@ -33,10 +32,7 @@ GRRLIB_texImg *GFX_Font;
 
 int main() {
     // Init Variables
-    u32 WPADKeyDown;
-    u32 WPADKeyHeld;
-    short WinW, WinH;
-    int P1MX, P1MY;
+    u32 PADKeyDown;
 
     u8 Stage = 0, Blending = 0;
     u8 BlobType = 0;
@@ -47,11 +43,7 @@ int main() {
 
     // Init GRRLIB & WiiUse
     GRRLIB_Init();
-    WinW = rmode->fbWidth;
-    WinH = rmode->efbHeight;
-    WPAD_Init();
-    WPAD_SetIdleTimeout( 60*10 );
-    WPAD_SetDataFormat( WPAD_CHAN_0, WPAD_FMT_BTNS_ACC_IR );
+    PAD_Init();
 
     // Load Textures
     GFX_Background = GRRLIB_LoadTextureJPG(RGFX_Background);
@@ -68,15 +60,8 @@ int main() {
 
 
     while (true) {
-        WPAD_ScanPads();
-        WPADKeyDown = WPAD_ButtonsDown(WPAD_CHAN_0);
-        WPADKeyHeld = WPAD_ButtonsHeld(WPAD_CHAN_0);
-        WPAD_SetVRes(WPAD_CHAN_0, WinW, WinH);
-        WPAD_IR(WPAD_CHAN_0, &P1Mote);
-
-        // WiiMote IR Viewport Correction
-        P1MX = P1Mote.sx - 150;
-        P1MY = P1Mote.sy - 150;
+        PAD_ScanPads();
+        PADKeyDown = PAD_ButtonsDown(0);
 
         // Update Stage
         Step = Step + 1;
@@ -94,11 +79,6 @@ int main() {
         }
         GRRLIB_DrawImg( SX, SY, GFX_Blob[BlobType], 0, 1, 1, RGBA(Color, Color, Color, 255) );
 
-        // IR Pointer
-        if (P1Mote.state == 1) {
-            GRRLIB_DrawImg( P1MX, P1MY, GFX_Blob[BlobType], 0, 1, 1, RGBA(Color, Color, Color, 255) );
-        }
-
         // Draw Text
         GRRLIB_SetBlend ( GRRLIB_BLEND_ALPHA );
         GRRLIB_Rectangle( 28, 28, 480 + 16, 76, RGBA(0, 0, 0, 160), 1 );
@@ -115,10 +95,10 @@ int main() {
         }
 
         GRRLIB_Render();
-        if (WPADKeyDown & WPAD_BUTTON_RIGHT) { if (Stage < 5) { Stage += 1; } }
-        if (WPADKeyDown & WPAD_BUTTON_LEFT ) { if (Stage > 0) { Stage -= 1; } }
-        if (WPADKeyDown & WPAD_BUTTON_A    ) { BlobType += 1; if (BlobType > 2) { BlobType = 0; } }
-        if (WPADKeyDown & WPAD_BUTTON_HOME ) { ExitGame(); }
+        if (PADKeyDown & PAD_BUTTON_RIGHT) { if (Stage < 5) { Stage += 1; } }
+        if (PADKeyDown & PAD_BUTTON_LEFT ) { if (Stage > 0) { Stage -= 1; } }
+        if (PADKeyDown & PAD_BUTTON_A    ) { BlobType += 1; if (BlobType > 2) { BlobType = 0; } }
+        if (PADKeyDown & PAD_BUTTON_START ) { ExitGame(); }
     }
     ExitGame();
     return 0;

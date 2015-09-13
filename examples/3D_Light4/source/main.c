@@ -6,7 +6,7 @@
 
 #include <stdlib.h>
 #include <math.h>
-#include <wiiuse/wpad.h>
+#include <ogc/pad.h>
 
 #include "Snap_ITC_12.h"
 
@@ -18,14 +18,14 @@ int main(int argc, char **argv) {
     GRRLIB_texImg *tex_font = GRRLIB_LoadTexture(Snap_ITC_12);
     GRRLIB_InitTileSet(tex_font, 17, 22, 32);
 
-    WPAD_Init();
+    PAD_Init();
 
     GRRLIB_SetBackgroundColour(0x40, 0x40, 0x40, 0xFF);
 
     while(1) {
         GRRLIB_2dMode();
-        WPAD_ScanPads();
-        if (WPAD_ButtonsDown(0) & WPAD_BUTTON_HOME)  break;
+        PAD_ScanPads();
+        if (PAD_ButtonsDown(0) & PAD_BUTTON_START)  break;
 
         GRRLIB_Camera3dSettings(0.0f,0.0f,3.0f, 0,1,0, 0,0,0);
 

@@ -19,4 +19,4 @@ clean:
 	done;
 
 dist: clean
-	@tar --exclude=.svn -cvjf wii-examples-$(DATESTRING).tar.bz2 *
+	@tar --exclude=.svn -cvjf cube-examples-$(DATESTRING).tar.bz2 *

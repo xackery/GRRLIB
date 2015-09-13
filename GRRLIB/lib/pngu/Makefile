@@ -1,19 +1,12 @@
-# Quick'n'dirty makefile [BC] v2
-
-ifeq ($(strip $(DEVKITPPC)),)
-  $(error "Use   export DEVKITPPC=<path to>devkitPPC   and try again")
-endif
-
-ifeq ($(strip $(DEVKITPRO)),)
-  $(error "Use   export DEVKITPRO=<path to>devkitPRO   and try again")
-endif
+DEVKITPRO := /Users/leroy_k/devkitPro
+DEVKITPPC := $(DEVKITPRO)/devkitPPC
 
 PREFIX	:= $(DEVKITPPC)/bin/powerpc-eabi-
 CC		:=	$(PREFIX)gcc
 AR		:=	$(PREFIX)ar
 
 LIBOGC_INC	:=	$(DEVKITPRO)/libogc/include
-LIBOGC_LIB	:=	$(DEVKITPRO)/libogc/lib/wii
+LIBOGC_LIB	:=	$(DEVKITPRO)/libogc/lib/cube
 
 INCLUDE	:= -I../zlib -I../png -I$(LIBOGC_INC)
 MACHDEP := -DGEKKO -mrvl -mcpu=750 -meabi -mhard-float

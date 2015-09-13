@@ -10,8 +10,8 @@
 # fully.
 
 
-include $(TOP_DIR)/builds/wii/wii-def.mk
-include $(TOP_DIR)/builds/compiler/wii.mk
+include $(TOP_DIR)/builds/cube/cube-def.mk
+include $(TOP_DIR)/builds/compiler/cube.mk
 include $(TOP_DIR)/builds/link_std.mk
 
 

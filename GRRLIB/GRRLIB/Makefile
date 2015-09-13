@@ -1,12 +1,8 @@
 # Quick'n'dirty makefile [BC] v2
+DEVKITPRO := /Users/leroy_k/devkitPro
+DEVKITPPC := $(DEVKITPRO)/devkitPPC
 
-ifeq ($(strip $(DEVKITPPC)),)
-  $(error "Use   export DEVKITPPC=<path to>devkitPPC   and try again")
-endif
 
-ifeq ($(strip $(DEVKITPRO)),)
-  $(error "Use   export DEVKITPRO=<path to>devkitPRO   and try again")
-endif
 
 NULLSTR :=
 PWD     := $(subst $(NULLSTR) ,\ ,$(shell pwd))
@@ -16,7 +12,7 @@ CC		:=	$(PREFIX)gcc
 AR		:=	$(PREFIX)ar
 
 LIBOGC_INC	:=	$(DEVKITPRO)/libogc/include
-LIBOGC_LIB	:=	$(DEVKITPRO)/libogc/lib/wii
+LIBOGC_LIB	:=	$(DEVKITPRO)/libogc/lib/cube
 
 INCLUDE	:= -I../lib/jpeg -I../lib/pngu -I../lib/freetype/include -I$(PWD) -I$(LIBOGC_INC)
 MACHDEP := -DGEKKO -mrvl -mcpu=750 -meabi -mhard-float

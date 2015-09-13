@@ -2,12 +2,20 @@
 # Clear the implicit built in rules
 #---------------------------------------------------------------------------------
 .SUFFIXES:
+
+ifeq ($(OS), Windows_NT)
+#don't care!
+else
+	ifeq ($(shell uname -s, Darwin)) #detect mac os x, since it doesn't allow access to the environment variables in 10.10+
+	DEVKITPRO := $(HOME)/devkitPro
+	DEVKITPPC := $(DEVKITPRO)/devkitPPC
+endif
 #---------------------------------------------------------------------------------
 ifeq ($(strip $(DEVKITPPC)),)
 $(error "Please set DEVKITPPC in your environment. export DEVKITPPC=<path to>devkitPPC)
 endif
 
-include $(DEVKITPPC)/wii_rules
+include $(DEVKITPPC)/gamecube_rules
 
 #---------------------------------------------------------------------------------
 # TARGET is the name of the output
@@ -33,7 +41,7 @@ LDFLAGS	=	-g $(MACHDEP) -mrvl -Wl,-Map,$(notdir $@).map
 #---------------------------------------------------------------------------------
 # any extra libraries we wish to link with the project
 #---------------------------------------------------------------------------------
-LIBS	:=	-lgrrlib -lfreetype -lpngu -lpng -ljpeg -lz -lfat -lwiiuse -lbte -logc -lm
+LIBS	:=	-lgrrlib -lfreetype -lpngu -lpng -ljpeg -lz -lfat -logc -lm
 
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing

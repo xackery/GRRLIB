@@ -6,7 +6,7 @@
 
 #include <stdlib.h>
 #include <math.h>
-#include <wiiuse/wpad.h>
+#include <ogc/pad.h>
 
 
 #include "gfx/Letter_Gothic_Std_14_Bold.h"
@@ -17,7 +17,7 @@ int main() {
     int camZ=13.0f;
 
     GRRLIB_Init();
-    WPAD_Init();
+    PAD_Init();
 
 
     GRRLIB_texImg *tex_font = GRRLIB_LoadTexture(Letter_Gothic_Std_14_Bold);
@@ -30,24 +30,24 @@ int main() {
 
     while(1) {
         GRRLIB_2dMode();
-        WPAD_ScanPads();
-        if(WPAD_ButtonsDown(0) & WPAD_BUTTON_HOME) break;
-        if(WPAD_ButtonsHeld(0) & WPAD_BUTTON_PLUS) camZ++;
-        if(WPAD_ButtonsHeld(0) & WPAD_BUTTON_MINUS) camZ--;
+        PAD_ScanPads();
+        if(PAD_ButtonsDown(0) & PAD_BUTTON_START) break;
+        if(PAD_ButtonsHeld(0) & PAD_BUTTON_X) camZ++;
+        if(PAD_ButtonsHeld(0) & PAD_BUTTON_Y) camZ--;
 
         GRRLIB_Camera3dSettings(0.0f,0.0f,camZ, 0,1,0, 0,0,0);
         GRRLIB_SetLightAmbient(0x333333FF);
 
 		GRRLIB_3dMode(0.1, 1000, 45, 0, 1);
 
-        if(WPAD_ButtonsHeld(0) & WPAD_BUTTON_A) {
+        if(PAD_ButtonsHeld(0) & PAD_BUTTON_A) {
             // Set all light off to get the sphere no light sourced (only get the vertex color)
             GRRLIB_SetLightOff();
             GRRLIB_ObjectView(sin(l1)*4.0f,0.0f,cos(l1)*4.0f, 0,0,0,1,1,1);
             GRRLIB_DrawSphere(0.2f, 20, 20, true, 0xFF0000FF);
         }
 
-        if(WPAD_ButtonsHeld(0) & WPAD_BUTTON_B) {
+        if(PAD_ButtonsHeld(0) & PAD_BUTTON_B) {
             // Set all light off to get the sphere no light sourced (only get the vertex color)
             GRRLIB_SetLightOff();
             GRRLIB_ObjectView(0.0f,sin(l2)*4.0f,cos(l2)*4.0f, 0,0,0,1,1,1);
@@ -57,12 +57,12 @@ int main() {
         // Set a dummy black light to get the ambient one when no light is selected
         GRRLIB_SetLightDiff(0,(guVector){0.0f,0.0f,0.0f},20.0f,1.0f,0x000000FF);
 
-        if(WPAD_ButtonsHeld(0) & WPAD_BUTTON_A) {
+        if(PAD_ButtonsHeld(0) & PAD_BUTTON_A) {
             GRRLIB_SetLightDiff(0,(guVector){sin(l1)*4.0f,0.0f,cos(l1)*4.0f},20.0f,1.0f,0xFF0000FF);
             l1+=0.03f;
         }
 
-        if(WPAD_ButtonsHeld(0) & WPAD_BUTTON_B) {
+        if(PAD_ButtonsHeld(0) & PAD_BUTTON_B) {
             GRRLIB_SetLightDiff(1,(guVector){0.0f,sin(l2)*4.0f,cos(l2)*4.0f},20.0f,1.0f,0x00FF00FF);
             l2+=0.05f;
         }

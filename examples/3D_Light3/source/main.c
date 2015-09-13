@@ -6,7 +6,7 @@
 #include <grrlib.h>
 
 #include <stdlib.h>
-#include <wiiuse/wpad.h>
+#include <ogc/pad.h>
 
 #include "gfx/font9x12.h"
 
@@ -16,7 +16,7 @@ int main() {
     float shy = 10.0f;
 
     GRRLIB_Init();
-    WPAD_Init();
+    PAD_Init();
 
     GRRLIB_texImg *tex_font = GRRLIB_LoadTexture(font9x12);
     GRRLIB_InitTileSet(tex_font, 9, 12, 32);
@@ -28,11 +28,11 @@ int main() {
     while(1) {
         GRRLIB_Camera3dSettings(0.0f,0.0f,10.0f, 0,1,0, 0,0,0);
 
-        WPAD_ScanPads();
+        PAD_ScanPads();
 
-        if(WPAD_ButtonsDown(0) & WPAD_BUTTON_HOME) break;
-        if(WPAD_ButtonsHeld(0) & WPAD_BUTTON_A) shy+=1;
-        if(WPAD_ButtonsHeld(0) & WPAD_BUTTON_B) shy-=1;
+        if(PAD_ButtonsDown(0) & PAD_BUTTON_START) break;
+        if(PAD_ButtonsHeld(0) & PAD_BUTTON_A) shy+=1;
+        if(PAD_ButtonsHeld(0) & PAD_BUTTON_B) shy-=1;
 
         GRRLIB_3dMode(0.1,1000,45,0,1);
 
@@ -101,4 +101,3 @@ int main() {
 
     exit(0);
 }
-

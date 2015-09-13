@@ -1,3 +1,6 @@
+
+DEVKITPRO := /Users/leroy_k/devkitPro
+DEVKITPPC := $(DEVKITPRO)/devk
 SUBDIRS:= `ls | egrep -v '^(\.svn)$$'`
 
 all:

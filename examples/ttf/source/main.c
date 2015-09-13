@@ -4,7 +4,7 @@
 #include <grrlib.h>
 
 #include <stdlib.h>
-#include <wiiuse/wpad.h>
+#include <ogc/pad.h>
 #include <ogc/lwp_watchdog.h>   // Needed for gettime and ticks_to_millisecs
 
 // Font
@@ -22,7 +22,7 @@ int main(int argc, char **argv) {
     GRRLIB_Init();
 
     // Initialise the Wii Remotes
-    WPAD_Init();
+    PAD_Init();
 
     // Load the font from memory
     GRRLIB_ttfFont *myFont = GRRLIB_LoadTTF(FreeMonoBold_ttf, FreeMonoBold_ttf_size);
@@ -69,21 +69,21 @@ int main(int argc, char **argv) {
             GRRLIB_PrintfTTF(500, 25, myFont, FPS, 12, 0xFFFFFFFF);
         }
 
-        WPAD_ScanPads();  // Scan the Wii Remotes
+        PAD_ScanPads();  // Scan the Wii Remotes
 
-        if (WPAD_ButtonsDown(0) & WPAD_BUTTON_HOME) {
+        if (PAD_ButtonsDown(0) & PAD_BUTTON_START) {
             break;
         }
-        if (WPAD_ButtonsDown(0) & WPAD_BUTTON_A) {
+        if (PAD_ButtonsDown(0) & PAD_BUTTON_A) {
             GRRLIB_Screen2Texture(0, 0, CopiedImg, false);
         }
-        if (WPAD_ButtonsDown(0) & WPAD_BUTTON_B) {
+        if (PAD_ButtonsDown(0) & PAD_BUTTON_B) {
             ShowFPS = !ShowFPS;
         }
-        if(WPAD_ButtonsHeld(0) & WPAD_BUTTON_1 && WPAD_ButtonsHeld(0) & WPAD_BUTTON_2) {
-            WPAD_Rumble(0, true);  // Rumble on
+        if(PAD_ButtonsHeld(0) & PAD_TRIGGER_L && PAD_ButtonsHeld(0) & PAD_TRIGGER_R) {
+		PAD_ControlMotor(0, PAD_MOTOR_RUMBLE);
             ScreenShot();    // Needs to be after GRRLIB_Render()
-            WPAD_Rumble(0, false); // Rumble off
+		PAD_ControlMotor(0, PAD_MOTOR_STOP);
         }
 
         GRRLIB_Render();  // Render the frame buffer to the TV

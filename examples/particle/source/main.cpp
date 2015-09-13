@@ -8,7 +8,7 @@
 #include <grrlib.h>
 
 #include <stdlib.h>
-#include <wiiuse/wpad.h>
+#include <ogc/pad.h>
 #include <math.h>
 #include <ogc/lwp_watchdog.h>
 #include <vector>
@@ -58,7 +58,6 @@ static u8 ClampVar8 (f32 Value);
 
 // Initialize general variables
 extern GXRModeObj *rmode;
-ir_t P1Mote;
 short WinW;
 short WinH;
 int P1MX, P1MY;
@@ -70,9 +69,9 @@ GRRLIB_texImg *GFX_Smoke;
 GRRLIB_texImg *GFX_Font;
 
 
+
 int main() {
-    u32 WPADKeyDown;
-    u32 WPADKeyHeld;
+    u32 PADKeyDown;
 
     u8 FPS = 0;
     u32 ParticleCnt = 0;
@@ -81,9 +80,7 @@ int main() {
     GRRLIB_Init();
     WinW = rmode->fbWidth;
     WinH = rmode->efbHeight;
-    WPAD_Init();
-    WPAD_SetIdleTimeout( 60*10 );
-    WPAD_SetDataFormat( WPAD_CHAN_0, WPAD_FMT_BTNS_ACC_IR );
+    PAD_Init();
 
     // Load textures
     GFX_Background = GRRLIB_LoadTextureJPG(RGFX_Background);
@@ -103,19 +100,11 @@ int main() {
     TextureList.push_back( GFX_Font );
 
     while (true) {
-        WPAD_ScanPads();
-        WPADKeyDown = WPAD_ButtonsDown(WPAD_CHAN_0);
-        WPADKeyHeld = WPAD_ButtonsHeld(WPAD_CHAN_0);
-        WPAD_SetVRes(WPAD_CHAN_0, WinW, WinH);
-        WPAD_IR(WPAD_CHAN_0, &P1Mote);
-
+        PAD_ScanPads();
+        PADKeyDown = PAD_ButtonsDown(0);
         // Resetting Vars
         GRRLIB_SetBlend( GRRLIB_BLEND_ALPHA );
         ParticleCnt = 0;
-
-        // WiiMote IR Viewport correction
-        P1MX = P1Mote.sx - 150;
-        P1MY = P1Mote.sy - 150;
 
         // Drawing Background
         GRRLIB_DrawImg( 0, 0, GFX_Background, 0, 1, 1, RGBA(255, 255, 255, 255) );
@@ -156,10 +145,10 @@ int main() {
         GRRLIB_Render();
         FPS = CalculateFrameRate();
 
-        if (WPADKeyDown & WPAD_BUTTON_B) {
+        if (PADKeyDown & PAD_BUTTON_B) {
             createEffect( EFFECT_SMOKEBOMB, P1MX, P1MY );
         }
-        if (WPADKeyDown & WPAD_BUTTON_HOME) {
+        if (PADKeyDown & PAD_BUTTON_START) {
             ExitGame();
         }
     }
@@ -254,6 +243,7 @@ static bool updateParticle( Particle *part ) {
     if ((part->scale < 0) || (part->alpha < 0)) { return false; }
     return true;
 }
+
 
 static void ExitGame() {
     // Free all memory used by textures.

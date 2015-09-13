@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <malloc.h>
-#include <wiiuse/wpad.h>
+#include <ogc/pad.h>
 
 #include "gfx/Rockwell_Condensed_12_Bold.h"
 
@@ -18,7 +18,7 @@ int main() {
     int objqual = 20;
 
     GRRLIB_Init();
-    WPAD_Init();
+    PAD_Init();
 
     GRRLIB_texImg *tex_font = GRRLIB_LoadTexture(Rockwell_Condensed_12_Bold);
     GRRLIB_InitTileSet(tex_font, 12, 19, 32);
@@ -31,8 +31,8 @@ int main() {
 
     while(1) {
         GRRLIB_2dMode();
-        WPAD_ScanPads();
-        if(WPAD_ButtonsDown(0) & WPAD_BUTTON_HOME) break;
+        PAD_ScanPads();
+        if(PAD_ButtonsDown(0) & PAD_BUTTON_START) break;
 
         GRRLIB_Camera3dSettings(0.0f, 0.0f,13.0f, 0,1,0, 0,0,0);
 
@@ -79,4 +79,3 @@ int main() {
 
     exit(0);
 }
-

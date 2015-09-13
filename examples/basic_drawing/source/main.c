@@ -8,7 +8,8 @@
 
 #include <ogc/lwp_watchdog.h>   // Needed for gettime and ticks_to_millisecs
 #include <stdlib.h>
-#include <wiiuse/wpad.h>
+#include <ogc/pad.h>
+#include <ogc/si.h>
 #include <fat.h>
 
 #include "gfx/BMfont1.h"
@@ -58,15 +59,14 @@ int main() {
     unsigned int wait = TILE_DELAY, direction = TILE_DOWN, direction_new = TILE_DOWN;
     u8 FPS = 0;
 
-    ir_t ir1;
-    u32 wpaddown, wpadheld;
+    u32 paddown, padheld;
     guVector triangle[] = {{400,200,0.0f}, {500,400,0.0f}, {300,400,0.0f}};
     u32 trianglecolor[] = {GRRLIB_GREEN, GRRLIB_RED, GRRLIB_BLUE};
 
     GRRLIB_Init();
 
-    WPAD_Init();
-    WPAD_SetDataFormat(WPAD_CHAN_0, WPAD_FMT_BTNS_ACC_IR);
+    PAD_Init();
+    //PAD_SetDataFormat(PAD_CHAN_0, PAD_FMT_BTNS_ACC_IR);
 
     GRRLIB_texImg *tex_test_jpg = GRRLIB_LoadTexture(test_jpg);
     GRRLIB_texImg *tex_test_bmp = GRRLIB_LoadTexture(test_bmp);
@@ -93,15 +93,13 @@ int main() {
     GRRLIB_InitTileSet(tex_BMfont5, 8, 16, 0);
 
     while(1) {
-        WPAD_SetVRes(0, 640, 480);
-        WPAD_ScanPads();
-        wpaddown = WPAD_ButtonsDown(0);
-        wpadheld = WPAD_ButtonsHeld(0);
+        PAD_ScanPads();
+        paddown = PAD_ButtonsDown(0);
+        padheld = PAD_ButtonsHeld(0);
 
-        WPAD_IR(WPAD_CHAN_0, &ir1);
 
         GRRLIB_FillScreen(GRRLIB_BLACK);    // Clear the screen
-        WPAD_Rumble(WPAD_CHAN_0, 0);
+		PAD_ControlMotor((0), PAD_MOTOR_STOP);
         switch(page)
         {
             case 1:   // Draw images
@@ -115,7 +113,7 @@ int main() {
                 GRRLIB_DrawTile(320+left, 240+top, tex_sprite_png, 0, 2, 2, GRRLIB_WHITE, frame);
                 if(GRRLIB_RectOnRect(320+left, 240+top, 48, 64, 618, 434, 12, 30))
                 {
-                    WPAD_Rumble(WPAD_CHAN_0, 1);
+					PAD_ControlMotor((0), PAD_MOTOR_RUMBLE);
                 }
                 if(direction_new != direction) {
                     // Direction has changed, modify frame immediately
@@ -127,8 +125,8 @@ int main() {
                 if(wait > TILE_DELAY) {
                     // wait is needed for the number of frame per second to be OK
                     wait = 0;
-                    if(wpadheld & WPAD_BUTTON_LEFT || wpadheld & WPAD_BUTTON_RIGHT ||
-                        wpadheld & WPAD_BUTTON_UP || wpadheld & WPAD_BUTTON_DOWN) {
+                    if(padheld & PAD_BUTTON_LEFT || padheld & PAD_BUTTON_RIGHT ||
+                        padheld & PAD_BUTTON_UP || padheld & PAD_BUTTON_DOWN) {
                         frame++;
                     }
                     else {
@@ -148,10 +146,10 @@ int main() {
                 GRRLIB_Circle(left + 300, top + 300, 50, GRRLIB_OLIVE, 1);
 
                 // Draw a yellow four pixel dot where the Wii Remote is pointing
-                GRRLIB_Plot(ir1.sx, ir1.sy, GRRLIB_YELLOW);
-                GRRLIB_Plot(ir1.sx + 1, ir1.sy, GRRLIB_YELLOW);
-                GRRLIB_Plot(ir1.sx, ir1.sy + 1, GRRLIB_YELLOW);
-                GRRLIB_Plot(ir1.sx + 1, ir1.sy + 1, GRRLIB_YELLOW);
+                // GRRLIB_Plot(ir1.sx, ir1.sy, GRRLIB_YELLOW);
+//                 GRRLIB_Plot(ir1.sx + 1, ir1.sy, GRRLIB_YELLOW);
+//                 GRRLIB_Plot(ir1.sx, ir1.sy + 1, GRRLIB_YELLOW);
+//                 GRRLIB_Plot(ir1.sx + 1, ir1.sy + 1, GRRLIB_YELLOW);
                 break;
             default: // Print some text
                 GRRLIB_Printf(5, 25, tex_BMfont2, GRRLIB_WHITE, 1, "GRRLIB %s TEXT DEMO", GRRLIB_VER_STRING);
@@ -159,61 +157,61 @@ int main() {
                 GRRLIB_Printf(5, 100, tex_BMfont4, GRRLIB_WHITE, 1, "TO QUIT PRESS THE HOME BUTTON.");
                 GRRLIB_Printf(5, 140, tex_BMfont4, GRRLIB_YELLOW, 1, "USE + OR - TO MOVE ACROSS PAGES.");
                 GRRLIB_Printf(5, 180, tex_BMfont4, GRRLIB_GREEN, 1, "USE THE D-PAD TO MOVE STUFF.");
-                GRRLIB_Printf(left, top+250, tex_BMfont1, GRRLIB_WHITE, 1, "IR X VALUE: %d", (int)ir1.x);
-                GRRLIB_Printf(left, top+300, tex_BMfont3, GRRLIB_WHITE, 1, "IR Y VALUE: %d", (int)ir1.y);
+                // GRRLIB_Printf(left, top+250, tex_BMfont1, GRRLIB_WHITE, 1, "IR X VALUE: %d", (int)ir1.x);
+				//GRRLIB_Printf(left, top+300, tex_BMfont3, GRRLIB_WHITE, 1, "IR Y VALUE: %d", (int)ir1.y);
                 GRRLIB_Printf(left, top+350, tex_BMfont3, 0XFFFFFF50, 1, "TEXT WITH ALPHA");
                 GRRLIB_Printf(left, top+400, tex_BMfont5, GRRLIB_LIME, 1, "This font has the 128 ASCII characters");
                 GRRLIB_PrintBMF(left, top+420, bmf_Font2, "%s", bmf_Font2->name);
         }
         GRRLIB_Printf(500, 27, tex_BMfont5, GRRLIB_WHITE, 1, "Current FPS: %d", FPS);
 
-        if(wpaddown & WPAD_BUTTON_HOME) {
+        if(paddown & PAD_BUTTON_START) {
             break;
         }
-        if(wpadheld & WPAD_BUTTON_LEFT) {
-            if(wpadheld & WPAD_BUTTON_B || page == 1)
+        if(padheld & PAD_BUTTON_LEFT) {
+            if(padheld & PAD_BUTTON_B || page == 1)
                 left -= 2;
             else
                 left--;
             direction_new = TILE_LEFT;  // for tile example
         }
-        if(wpadheld & WPAD_BUTTON_RIGHT) {
-            if(wpadheld & WPAD_BUTTON_B || page == 1)
+        if(padheld & PAD_BUTTON_RIGHT) {
+            if(padheld & PAD_BUTTON_B || page == 1)
                 left += 2;
             else
                 left++;
             direction_new = TILE_RIGHT;  // for tile example
         }
-        if(wpadheld & WPAD_BUTTON_UP) {
-            if(wpadheld & WPAD_BUTTON_B || page == 1)
+        if(padheld & PAD_BUTTON_UP) {
+            if(padheld & PAD_BUTTON_B || page == 1)
                 top -= 2;
             else
                 top--;
             direction_new = TILE_UP;  // for tile example
         }
-        if(wpadheld & WPAD_BUTTON_DOWN) {
-            if(wpadheld & WPAD_BUTTON_B || page == 1)
+        if(padheld & PAD_BUTTON_DOWN) {
+            if(padheld & PAD_BUTTON_B || page == 1)
                 top += 2;
             else
                 top++;
             direction_new = TILE_DOWN;  // for tile example
         }
-        if(wpaddown & WPAD_BUTTON_MINUS) {
+        if(paddown & PAD_BUTTON_X) {
             page--;
             left = 0;
             top = 0;
             if(page < 0) page = 2;
         }
-        if(wpaddown & WPAD_BUTTON_PLUS) {
+        if(paddown & PAD_BUTTON_Y) {
             page++;
             left = 0;
             top = 0;
             if(page > 2) page = 0;
         }
-        if(wpadheld & WPAD_BUTTON_1 && wpadheld & WPAD_BUTTON_2) {
-            WPAD_Rumble(WPAD_CHAN_0, 1); // Rumble on
+        if(padheld & PAD_TRIGGER_L && padheld & PAD_TRIGGER_R) {
+            PAD_ControlMotor(0, PAD_MOTOR_RUMBLE);
             GRRLIB_ScrShot("sd:/grrlib.png");
-            WPAD_Rumble(WPAD_CHAN_0, 0); // Rumble off
+            PAD_ControlMotor(0, PAD_MOTOR_STOP);
         }
 
         GRRLIB_Render();
@@ -252,4 +250,3 @@ static u8 CalculateFrameRate() {
     }
     return FPS;
 }
-

@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <malloc.h>
-#include <wiiuse/wpad.h>
+#include <ogc/pad.h>
 
 
 #include "gfx/font.h"
@@ -18,7 +18,7 @@ int main() {
     int cubeZ=0;
 
     GRRLIB_Init();
-    WPAD_Init();
+    PAD_Init();
 
     GRRLIB_texImg *tex_girl= GRRLIB_LoadTexture(girl);
 
@@ -33,10 +33,10 @@ int main() {
 
     while(1) {
         GRRLIB_2dMode();
-        WPAD_ScanPads();
-        if(WPAD_ButtonsDown(0) & WPAD_BUTTON_HOME) exit(0);
-        if(WPAD_ButtonsHeld(0) & WPAD_BUTTON_A) cubeZ++;
-        if(WPAD_ButtonsHeld(0) & WPAD_BUTTON_B) cubeZ--;
+        PAD_ScanPads();
+        if(PAD_ButtonsDown(0) & PAD_BUTTON_START) exit(0);
+        if(PAD_ButtonsHeld(0) & PAD_BUTTON_A) cubeZ++;
+        if(PAD_ButtonsHeld(0) & PAD_BUTTON_B) cubeZ--;
 
         GRRLIB_3dMode(0.1,1000,45,1,0);
         GRRLIB_SetTexture(tex_girl,0);

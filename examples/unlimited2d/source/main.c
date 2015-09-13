@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <malloc.h>
-#include <wiiuse/wpad.h>
+#include <ogc/pad.h>
 
 
 #include "gfx/logo.h"
@@ -30,7 +30,7 @@ int main() {
 
 
     GRRLIB_Init();
-    WPAD_Init();
+    PAD_Init();
 
     GRRLIB_Settings.antialias = false;
 
@@ -61,7 +61,7 @@ int main() {
     }
 
     while(1) {
-        WPAD_ScanPads();
+        PAD_ScanPads();
 
         GRRLIB_DrawImg(0, 0, tex_screen[screen_index], 0, 1, 1, 0xFFFFFFFF);
         GRRLIB_DrawImg(((R + r-ff)*cos(t-f) - d*cos(((R + r-f)/r)*t))+rmode->fbWidth/2-32, ((R + r-ff)*sin(t) - d*sin(((R + r)/r)*t)-f)+rmode->efbHeight/2-32, tex_ball, 1, 1, 1, 0xFFFFFFFF);
@@ -86,7 +86,7 @@ int main() {
         }
 
 
-        if(WPAD_ButtonsDown(0) & WPAD_BUTTON_HOME) exit(0);
+        if(PAD_ButtonsDown(0) & PAD_BUTTON_START) exit(0);
 
     }
     GRRLIB_FreeTexture(tex_logo);

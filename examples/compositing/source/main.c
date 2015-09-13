@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <malloc.h>
-#include <wiiuse/wpad.h>
+#include <ogc/pad.h>
 
 #include "gfx/font3d.h"
 extern GXRModeObj *rmode;
@@ -20,7 +20,7 @@ int main() {
     char text[]="GRRLIB ROXX ";
 
     GRRLIB_Init();
-    WPAD_Init();
+    PAD_Init();
 
 
     GRRLIB_texImg *tex_font = GRRLIB_LoadTexture(font3d);
@@ -33,8 +33,8 @@ int main() {
     GRRLIB_Settings.antialias = true;
 
     while(1) {
-        WPAD_ScanPads();
-        if(WPAD_ButtonsDown(0) & WPAD_BUTTON_HOME) exit(0);
+        PAD_ScanPads();
+        if(PAD_ButtonsDown(0) & PAD_BUTTON_START) exit(0);
 
 // we say thant we will want to capture to a texture all the following
         GRRLIB_CompoStart();
@@ -62,4 +62,3 @@ int main() {
     GRRLIB_Exit(); // Be a good boy, clear the memory allocated by GRRLIB
     exit(0);
 }
-

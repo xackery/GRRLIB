@@ -3,12 +3,19 @@
 #---------------------------------------------------------------------------------
 .SUFFIXES:
 #---------------------------------------------------------------------------------
+
+ifeq ($(OS), Windows_NT)
+#don't care!
+else
+	ifeq ($(shell uname -s, Darwin)) #detect mac os x, since it doesn't allow access to the environment variables in 10.10+
+	DEVKITPRO := $(HOME)/devkitPro
+	DEVKITPPC := $(DEVKITPRO)/devkitPPC
+endif
 ifeq ($(strip $(DEVKITPPC)),)
-$(error "Please set DEVKITPPC in your environment. export DEVKITPPC=<path to>devkitPPC)
+$(error "Please set DEVKITPPC in your environment. export DEVKITPPC=<path to>devkitPPC")
 endif
 
-include $(DEVKITPPC)/wii_rules
-
+include $(DEVKITPPC)/gamecube_rules
 #---------------------------------------------------------------------------------
 # TARGET is the name of the output
 # BUILD is the directory where object files & intermediate files will be placed
@@ -33,7 +40,7 @@ LDFLAGS	=	-g $(MACHDEP) -mrvl -Wl,-Map,$(notdir $@).map
 #---------------------------------------------------------------------------------
 # any extra libraries we wish to link with the project
 #---------------------------------------------------------------------------------
-LIBS	:=	-lgrrlib -l freetype -lpngu -lpng -ljpeg -lz -lfat -lwiiuse -lbte -logc -lm
+LIBS	:=	-lgrrlib -l freetype -lpngu -lpng -ljpeg -lz -lfat -logc -lm
 
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing

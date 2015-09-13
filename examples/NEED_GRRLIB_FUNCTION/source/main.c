@@ -12,7 +12,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <malloc.h>
-#include <wiiuse/wpad.h>
+#include <ogc/pad.h>
 
 #include "gfx/font9x12.h"
 #include "gfx/room.h"
@@ -29,7 +29,7 @@ Mtx mr,mv,rx,ry,rz,m;
 GXTexObj  texObj;
 
     GRRLIB_Init();
-    WPAD_Init();
+    PAD_Init();
 
 
     GRRLIB_texImg *tex_room = GRRLIB_LoadTexture(room);
@@ -45,10 +45,10 @@ GXTexObj  texObj;
 	GRRLIB_Camera3dSettings(0.0f,0.0f,10.0f, 0,1,0, 0,0,0);
 
         GRRLIB_2dMode();
-        WPAD_ScanPads();
-        if(WPAD_ButtonsDown(0) & WPAD_BUTTON_HOME) exit(0);
-        if(WPAD_ButtonsDown(0) & WPAD_BUTTON_PLUS) if(demo<5) demo++;
-        if(WPAD_ButtonsDown(0) & WPAD_BUTTON_MINUS) if(demo>0) demo--;
+        PAD_ScanPads();
+        if(PAD_ButtonsDown(0) & PAD_BUTTON_START) exit(0);
+        if(PAD_ButtonsDown(0) & PAD_BUTTON_X) if(demo<5) demo++;
+        if(PAD_ButtonsDown(0) & PAD_BUTTON_Y) if(demo>0) demo--;
 
         GRRLIB_3dMode(0.1,1000,45,0,1);
 

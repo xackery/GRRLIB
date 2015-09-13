@@ -1,12 +1,5 @@
-# Quick'n'dirty makefile [BC]
-
-ifeq ($(strip $(DEVKITPPC)),)
-  $(error "Use   export DEVKITPPC=<path to>devkitPPC   and try again")
-endif
-
-ifeq ($(strip $(DEVKITPRO)),)
-  $(error "Use   export DEVKITPRO=<path to>devkitPRO   and try again")
-endif
+DEVKITPRO := /Users/leroy_k/devkitPro
+DEVKITPPC := $(DEVKITPRO)/devkitPPC
 
 # FreeType Makefile
 PROJECT       := freetype
@@ -17,7 +10,7 @@ include $(TOP_DIR)/builds/toplevel.mk
 
 
 LIBOGC_INC	:=	$(DEVKITPRO)/libogc/include
-LIBOGC_LIB	:=	$(DEVKITPRO)/libogc/lib/wii
+LIBOGC_LIB	:=	$(DEVKITPRO)/libogc/lib/cube
 
 clean :
 	rm -f lib$(PROJECT).a ftmodule.h

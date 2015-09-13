@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <malloc.h>
-#include <wiiuse/wpad.h>
+#include <ogc/pad.h>
 
 #include "gfx/font.h"
 
@@ -17,7 +17,7 @@ int main(void){
     f32 rotpas = 60.0f;
 
     GRRLIB_Init();
-    WPAD_Init();
+    PAD_Init();
 
     GRRLIB_texImg *tex_font = GRRLIB_LoadTexture(font);
     GRRLIB_InitTileSet(tex_font, 16, 16, 32);
@@ -30,8 +30,8 @@ int main(void){
 
     while(1) {
         GRRLIB_2dMode();
-        WPAD_ScanPads();
-        if(WPAD_ButtonsDown(0) & WPAD_BUTTON_HOME) exit(0);
+        PAD_ScanPads();
+        if(PAD_ButtonsDown(0) & PAD_BUTTON_START) exit(0);
 
 
         GRRLIB_3dMode(0.1,1000,45,0,1);
@@ -102,4 +102,3 @@ int main(void){
 
     exit(0);
 }
-

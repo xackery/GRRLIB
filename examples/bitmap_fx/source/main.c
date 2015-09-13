@@ -7,14 +7,14 @@
 #include <grrlib.h>
 
 #include <stdlib.h>
-#include <wiiuse/wpad.h>
+#include <ogc/pad.h>
 
 #include "gfx/pirate.h"
 #include "gfx/font1.h"
 
 
 int main() {
-    u32 wpaddown;
+    u32 paddown;
     s8 page = 0;
 
     // Font texture
@@ -111,11 +111,11 @@ int main() {
     GRRLIB_FlushTex(tex_fliphv);
 
     GRRLIB_Init();
-    WPAD_Init();
+    PAD_Init();
 
     while(1) {
-        WPAD_ScanPads();
-        wpaddown = WPAD_ButtonsDown(0);
+        PAD_ScanPads();
+        paddown = PAD_ButtonsDown(0);
 
         GRRLIB_FillScreen(0xFFFFFFFF);
 
@@ -190,14 +190,14 @@ int main() {
         }
 
         GRRLIB_Render();
-        if(wpaddown & WPAD_BUTTON_HOME) {
+        if(paddown & PAD_BUTTON_START) {
             break;
         }
-        if(wpaddown & WPAD_BUTTON_MINUS) {
+        if(paddown & PAD_BUTTON_X) {
             page--;
             if(page < 0) page = 7;
         }
-        if(wpaddown & WPAD_BUTTON_PLUS) {
+        if(paddown & PAD_BUTTON_Y) {
             page++;
             if(page > 7) page = 0;
         }

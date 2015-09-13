@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <malloc.h>
-#include <wiiuse/wpad.h>
+#include <ogc/pad.h>
 
 #include "gfx/logo.h"
 
@@ -18,7 +18,7 @@ int main() {
     u32 col;
 
     GRRLIB_Init();
-    WPAD_Init();
+    PAD_Init();
 
     GRRLIB_Settings.antialias = true;
 
@@ -28,8 +28,8 @@ int main() {
 
     while(1) {
         GRRLIB_2dMode();
-        WPAD_ScanPads();
-        if(WPAD_ButtonsDown(0) & WPAD_BUTTON_HOME) exit(0);
+        PAD_ScanPads();
+        if(PAD_ButtonsDown(0) & PAD_BUTTON_START) exit(0);
 
 
         GRRLIB_3dMode(0.1,1000,45,0,0);
@@ -59,4 +59,3 @@ int main() {
 
     exit(0);
 }
-
