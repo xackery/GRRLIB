@@ -169,37 +169,19 @@ changes. and (if necessary) reverted.
 It also allows the power-users to gain access to the latest (often "in-test")
 features.
 
-To obtain the "cutting edge" codebase go to https://github.com/GRRLIB/GRRLIB/tree/master
+To obtain the "cutting edge" codebase for Gamecube GRRLIB go to https://github.com/capz/GRRLIB/tree/master
 
- 1. Create a directory to hold the code (e.g. C:\grr)
- 2. Click the *Download ZIP* button if you don't have the proper tools installed on your PC or Clone the following URL https://github.com/GRRLIB/GRRLIB.git
+ 1. Create a folder to hold the code (e.g. Desktop/grr)
+ 2. Click the *Download ZIP* button if you don't have the proper tools installed on your PC or Clone the following URL https://github.com/capz/GRRLIB.git
 
-All official releases can be found here https://github.com/GRRLIB/GRRLIB/releases
+All official (Wii) releases can be found here https://github.com/GRRLIB/GRRLIB/releases
+Unofficial Gamecube releases can be found here https://github.com/capz/GRRLIB/releases
 
 
 Credits
 -------
-
-#### Project Leader
-* NoNameNo
-
-#### Documentation
-* Crayon
-* BlueChip
-
-#### Lead Coder
-* NoNameNo
-
-#### Support Coders
-* Crayon
-* Xane
-* DragonMinded
-* BlueChip
-* elisherer
-
-#### Advisors
-* RedShade
-* Jespa
+Official Wii GRRLIB: https://github.com/GRRLIB/GRRLIB#credits
+Gamecube-patched fork: capz
 
 
 Licence
@@ -210,9 +192,7 @@ If we had chosen the GPL licence you would be +forced+ (legally required) to rel
 But in the spirit of "free as in FREE" we have left you with the +option+ to release your
 source code.
 
-We do +request+ that you tell others about us by naming our library (GRRLIB) in
+GRRLIB do +request+ that you tell others about GRRLIB by naming it in
 the credits of your game/application.  And, if you +choose+ to do that, we
-encourage you to use our logo to achieve it; You can find our logo here:
-C:\grr\grrlib_logo.png
-and here:
+encourage you to use the logo to achieve it; You can find the logo here:
 http://grrlib.santo.fr/wiki/images/logo.png
