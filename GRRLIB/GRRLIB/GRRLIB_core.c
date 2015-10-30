@@ -63,24 +63,21 @@ int  GRRLIB_Init (void) {
     // Grab a pointer to the video mode attributes
     if ( !(rmode = VIDEO_GetPreferredMode(NULL)) )  return -1;
 
-    // Video Mode Correction
-    switch (rmode->viTVMode) {
-        case VI_DEBUG_PAL:  // PAL 50hz 576i
-            //rmode = &TVPal574IntDfScale;
-            rmode = &TVPal528IntDf; // BC ...this is still wrong, but "less bad" for now
-            break;
-    }
+	switch (rmode->viTVMode) {
+        case VI_DEBUG_PAL: {
+            rmode = &TVPal576IntDfScale; // BC ...this is still wrong, but "less bad" for now
+			rmode->xfbHeight = 480;
+			rmode->viHeight = 480;
+			rmode->viYOrigin = (VI_MAX_HEIGHT_PAL - 480) / 2;
+        	break;
+		}
+		default: {
+			rmode = &TVNtsc480IntDf;
+			break;
+		}
+	}
+	if(VIDEO_HaveComponentCable()) rmode = &TVNtsc480Prog;
 
-    // 16:9 and 4:3 Screen Adjustment
-    // if (CONF_GetAspectRatio() == CONF_ASPECT_16_9) {
-//         rmode->viWidth = 678;
-//         rmode->viXOrigin = (VI_MAX_WIDTH_NTSC - 678)/2;  // This probably needs to consider PAL
-//     } else {    // 4:3
-        rmode->viWidth = 672;
-        rmode->viXOrigin = (VI_MAX_WIDTH_NTSC - 672)/2;
-    // }
-
-    // --
     VIDEO_Configure(rmode);
 
     // Get some memory to use for a "double buffered" frame buffer
@@ -115,7 +112,7 @@ int  GRRLIB_Init (void) {
 
     GX_SetDispCopyGamma(GX_GM_1_0);
 
-    if(rmode->fbWidth <= 0){ printf("GRRLIB " GRRLIB_VER_STRING); }
+    if(rmode->fbWidth <= 0){ printf("GRRLIB-GAMECUBE " GRRLIB_VER_STRING); }
 
     // Setup the vertex descriptor
     GX_ClearVtxDesc();      // clear all the vertex descriptors
