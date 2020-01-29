@@ -1,8 +1,6 @@
 # Quick'n'dirty makefile [BC] v2
-DEVKITPRO := /Users/leroy_k/devkitPro
+DEVKITPRO := C:/devkitPro
 DEVKITPPC := $(DEVKITPRO)/devkitPPC
-
-
 
 NULLSTR :=
 PWD     := $(subst $(NULLSTR) ,\ ,$(shell pwd))
@@ -15,7 +13,7 @@ LIBOGC_INC	:=	$(DEVKITPRO)/libogc/include
 LIBOGC_LIB	:=	$(DEVKITPRO)/libogc/lib/cube
 
 INCLUDE	:= -I../lib/jpeg -I../lib/pngu -I../lib/freetype/include -I$(PWD) -I$(LIBOGC_INC)
-MACHDEP := -DGEKKO -mrvl -mcpu=750 -meabi -mhard-float
+MACHDEP := -DGEKKO -mgcn -mcpu=750 -meabi -mhard-float
 CFLAGS  := -O2 -Wall $(MACHDEP) $(INCLUDE)
 
 LIB		:= grrlib

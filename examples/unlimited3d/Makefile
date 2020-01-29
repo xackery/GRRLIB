@@ -35,7 +35,7 @@ INCLUDES	:=
 CFLAGS	= -g -O2 -mrvl -Wall $(MACHDEP) $(INCLUDE)
 CXXFLAGS	=	$(CFLAGS)
 
-#LDFLAGS	=	-g $(MACHDEP) -mrvl -Wl,-Map,$(notdir $@).map
+#LDFLAGS	=	-g $(MACHDEP) -mgcn -Wl,-Map,$(notdir $@).map
 LDFLAGS = -g $(MACHDEP) -Wl,-Map,$(notdir $@).map -Wl,--section-start,.init=0x81000000
 
 #---------------------------------------------------------------------------------

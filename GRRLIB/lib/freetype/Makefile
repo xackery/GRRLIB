@@ -1,4 +1,4 @@
-DEVKITPRO := /Users/leroy_k/devkitPro
+DEVKITPRO := C:/devkitPro
 DEVKITPPC := $(DEVKITPRO)/devkitPPC
 
 # FreeType Makefile
