@@ -1,4 +1,3 @@
-DEVKITPRO := C:/devkitPro
 DEVKITPPC := $(DEVKITPRO)/devkitPPC
 
 SUBDIRS:= `ls | egrep -v '^(\.svn)$$'`

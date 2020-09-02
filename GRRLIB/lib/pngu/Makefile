@@ -1,4 +1,3 @@
-DEVKITPRO := C:/devkitPro
 DEVKITPPC := $(DEVKITPRO)/devkitPPC
 
 PREFIX	:= $(DEVKITPPC)/bin/powerpc-eabi-

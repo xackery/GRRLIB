@@ -1,5 +1,4 @@
 # Quick'n'dirty makefile [BC] v2
-DEVKITPRO := C:/devkitPro
 DEVKITPPC := $(DEVKITPRO)/devkitPPC
 
 NULLSTR :=
